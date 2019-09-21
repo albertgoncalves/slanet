@@ -1,0 +1,10 @@
+*
+!.gitignore
+!shell.nix
+!.shellhook
+!src/
+!*.go
+!client
+!*.html
+!*.css
+!*.js

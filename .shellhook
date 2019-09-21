@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+if [ "$(uname -s)" = "Darwin" ]; then
+    alias ls="ls --color=auto"
+    alias ll="ls -l"
+else
+    alias open="xdg-open"
+fi
+
+export WD
+export GOPATH
+WD=$(pwd)
+GOPATH=$WD
+
+if [ ! -d "$GOPATH/bin" ]; then
+    mkdir "$GOPATH/bin"
+fi
+
+if [ ! -f "$GOPATH/.goinit" ]; then
+    go get -v golang.org/x/lint/golint
+    go get -v github.com/gorilla/websocket
+    touch "$GOPATH/.goinit"
+fi
+
+gofmts() {
+    if gofmt -w -s -e "$1"; then
+        awk '{ gsub(/\t/, "    "); print }' < "$1" > tmp
+        cat tmp > "$1"
+        rm tmp
+    fi
+}
+
+golint() {
+    "$GOPATH/bin/golint" "$1" \
+        | sed -n -e '/exported .* should have comment.* or be unexported/!p'
+}
+
+goall() {
+    wd=$(pwd)
+    cd "$GOPATH" || exit
+    find . -type f -name '*.go' \
+        -not -path "*github.com*" \
+        -not -path "*golang.org*" \
+        -exec bash -c 'echo "$0"; golint "$0"; gofmts "$0"' {} \;
+    cd "$wd" || exit
+}
+
+govets() {
+    wd=$(pwd)
+    cd "$GOPATH/src" || exit
+    src=$(
+        find -- * -prune -type d \
+            -not -path "*github.com*" \
+            -not -name "*golang.org*" \
+            | tr '\r\n' ' '
+    )
+    eval "go vet -v $src"
+    cd "$wd" || exit
+}
+
+export -f gofmts
+export -f golint
+export -f goall
+export -f govets
+
+if [ ! -f "$WD/.jsinit" ]; then
+    npm install --save-dev jshint
+    touch "$WD/.jsinit"
+fi
+
+jsfmts () {
+    tidy -q -m "$WD/client/index.html"
+    sed -i 's/[ \t]\+$//' "$WD/client/index.html"
+    for f in "$WD"/client/*.js; do
+        echo "$f"
+        clang-format -i "$f"
+    done
+}
+
+export -f jsfmts
+alias jshint="node_modules/jshint/bin/jshint"
