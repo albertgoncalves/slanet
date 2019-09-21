@@ -8,3 +8,4 @@
 !*.html
 !*.css
 !*.js
+!.tidyrc
