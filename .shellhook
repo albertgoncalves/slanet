@@ -47,14 +47,15 @@ goall() {
 
 govets() {
     wd=$(pwd)
-    cd "$GOPATH/src" || exit
-    src=$(
+    directory=$1
+    cd "$directory" || exit
+    items=$(
         find -- * -prune -type d \
             -not -path "*github.com*" \
             -not -name "*golang.org*" \
             | tr '\r\n' ' '
     )
-    eval "go vet -v $src"
+    eval "go vet -v $items"
     cd "$wd" || exit
 }
 

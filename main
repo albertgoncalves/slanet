@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -e
+
+go build -o $WD/bin/main cmd/main.go
+$WD/bin/main

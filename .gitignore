@@ -3,9 +3,11 @@
 !shell.nix
 !.shellhook
 !src/
+!cmd/
 !*.go
 !client
 !*.html
 !*.css
 !*.js
 !.tidyrc
+!main
