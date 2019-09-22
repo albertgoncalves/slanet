@@ -1,20 +1,21 @@
 body {
     font-family: Verdana, Geneva, sans-serif;
-	margin-left: 40%;
-	margin-right: 40%;
-    font-size: 14px;
-	width: 20%
+    font-size: 12px;
+    margin: auto;
+    width: 500px;
 }
 
 div .center {
-	text-align: center;
-	display: block;
-	margin: 5px;
+    text-align: center;
+    display: block;
+    margin: 5px;
 }
 
 table {
     border-collapse: collapse;
     text-align: center;
-	width: 100%;
+    margin-left: 25%;
+    margin-right: 25%;
+    width: 50%;
     padding: 4px;
 }

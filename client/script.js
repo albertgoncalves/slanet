@@ -26,7 +26,7 @@ function randomColor() {
     var h = Math.floor(Math.random() * 360);
     var s = Math.floor(Math.random() * 50) + 50;
     var l = Math.floor(Math.random() * 75);
-    var a = (Math.random() * 0.25) + 0.25;
+    var a = (Math.random() * 0.2) + 0.1;
     return "hsla(" + h.toString() + ", " + s.toString() + "%, " +
         l.toString() + "%, " + a.toString() + ")";
 }
