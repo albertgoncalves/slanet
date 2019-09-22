@@ -1,4 +1,4 @@
-var URI = "ws://localhost:8080/echo";
+var URI = "ws://localhost:8080/ws";
 var RESPONSE;
 
 function inscribe(text) {
@@ -12,7 +12,7 @@ function main() {
     websocket = new WebSocket(URI);
     websocket.onopen = function() {
         inscribe("CONNECTED");
-        var message = "Hello, world!";
+        var message = JSON.stringify({message: "Client says, \"Hello!\""});
         inscribe("SENT: " + message);
         websocket.send(message);
     };
@@ -20,9 +20,9 @@ function main() {
         inscribe("DISCONNECTED");
     };
     websocket.onmessage = function(e) {
-        inscribe("<span style=\"color: blue;\">RESPONSE: " + e.data +
+        var message = JSON.parse(e.data).message;
+        inscribe("<span style=\"color: blue;\">RESPONSE: " + message +
                  "</span>");
-        var message = "Hello, again!";
         websocket.close();
     };
     websocket.onerror = function(e) {

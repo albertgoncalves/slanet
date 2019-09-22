@@ -6,20 +6,30 @@ import (
     "net/http"
 )
 
+type message struct {
+    Message string `json:"message"`
+}
+
 var upgrader = websocket.Upgrader{}
 
-func echo(w http.ResponseWriter, r *http.Request) {
-    con, err := upgrader.Upgrade(w, r, nil)
+func socket(w http.ResponseWriter, r *http.Request) {
+    conn, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
         return
     }
     for {
-        messageType, message, err := con.ReadMessage()
-        if err != nil {
+        m := message{}
+        if err := conn.ReadJSON(&m); err != nil {
+            log.Printf("%#v\n", err)
             return
         }
-        log.Printf("%s sent: %s\n", con.RemoteAddr(), string(message))
-        if err := con.WriteMessage(messageType, message); err != nil {
+        log.Printf(
+            "\n\taddress\t: %s\n\tmessage\t: %#v\n",
+            conn.RemoteAddr(),
+            m,
+        )
+        if err := conn.WriteJSON(m); err != nil {
+            log.Printf("%#v\n", err)
             return
         }
     }
@@ -28,7 +38,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 func main() {
     port := ":8080"
     log.Printf("listening on http://localhost%s/\n", port)
-    http.HandleFunc("/echo", echo)
+    http.HandleFunc("/ws", socket)
     http.Handle("/", http.FileServer(http.Dir("client")))
     if err := http.ListenAndServe(port, nil); err != nil {
         log.Fatal(err)
