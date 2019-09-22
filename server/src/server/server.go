@@ -22,9 +22,9 @@ type client struct {
     Status *status
 }
 
-var add = make(chan client)
-var remove = make(chan *websocket.Conn)
-var clients = make(map[*websocket.Conn]*status)
+var ADD = make(chan client)
+var REMOVE = make(chan *websocket.Conn)
+var CLIENTS = make(map[*websocket.Conn]*status)
 
 func address(conn *websocket.Conn) uint16 {
     return uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
@@ -48,11 +48,11 @@ func socket(w http.ResponseWriter, r *http.Request) {
         log.Printf("%#v\n", err)
         return
     }
-    add <- client{Conn: conn, Status: s}
+    ADD <- client{Conn: conn, Status: s}
     for {
         u := &update{}
         if err := conn.ReadJSON(u); err != nil {
-            remove <- conn
+            REMOVE <- conn
             log.Printf("%#v\n", err)
             return
         }
@@ -62,18 +62,18 @@ func socket(w http.ResponseWriter, r *http.Request) {
 func broadcast() {
     for {
         select {
-        case client := <-add:
-            clients[client.Conn] = client.Status
-        case conn := <-remove:
-            delete(clients, conn)
+        case client := <-ADD:
+            CLIENTS[client.Conn] = client.Status
+        case conn := <-REMOVE:
+            delete(CLIENTS, conn)
         }
-        var players = make([]*status, len(clients))
+        var players = make([]*status, len(CLIENTS))
         i := 0
-        for _, p := range clients {
+        for _, p := range CLIENTS {
             players[i] = p
             i++
         }
-        for conn := range clients {
+        for conn := range CLIENTS {
             if err := conn.WriteJSON(players); err != nil {
                 log.Printf("%#v\n", err)
             }
