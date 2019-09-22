@@ -57,6 +57,10 @@ function connect() {
             if (event.keyCode === 13) {
                 console.log("disconnecting");
                 WEBSOCKET.close();
+                LEDGER.innerHTML = "";
+                NAME.onkeypress = function() {
+                    console.log("no-op");
+                };
             }
         };
     }
