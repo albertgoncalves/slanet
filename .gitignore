@@ -4,11 +4,11 @@
 !.shellhook
 !src/
 !server/
-!cmd/
 !*.go
 !client/
 !*.html
 !*.css
 !*.js
 !.tidyrc
+!.clang-format
 !main
