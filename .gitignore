@@ -3,6 +3,7 @@
 !shell.nix
 !.shellhook
 !src/
+!server/
 !cmd/
 !*.go
 !client
