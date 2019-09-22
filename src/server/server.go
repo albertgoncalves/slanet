@@ -15,7 +15,7 @@ type update struct {
     Content string `json:"content"`
 }
 
-type clientPlayer struct {
+type clientMemo struct {
     Client *websocket.Conn
     Player *player
 }
@@ -27,20 +27,9 @@ type clientBroadcast struct {
 
 var clients = make(map[*websocket.Conn]*player)
 var upgrader = websocket.Upgrader{}
-var add = make(chan clientPlayer)
+var add = make(chan clientMemo)
 var remove = make(chan *websocket.Conn)
 var inform = make(chan clientBroadcast)
-
-func broadcast() {
-    var currentPlayers = make(map[string]uint8)
-    for _, p := range clients {
-        currentPlayers[p.Handle] = p.Score
-    }
-    log.Println(currentPlayers)
-    for conn := range clients {
-        inform <- clientBroadcast{Client: conn, Players: &currentPlayers}
-    }
-}
 
 func Socket(w http.ResponseWriter, r *http.Request) {
     conn, err := upgrader.Upgrade(w, r, nil)
@@ -53,7 +42,7 @@ func Socket(w http.ResponseWriter, r *http.Request) {
         log.Printf("%#v\n", err)
         return
     }
-    add <- clientPlayer{Client: conn, Player: p}
+    add <- clientMemo{Client: conn, Player: p}
     for {
         u := &update{}
         if err := conn.ReadJSON(u); err != nil {
@@ -61,6 +50,17 @@ func Socket(w http.ResponseWriter, r *http.Request) {
             log.Printf("%#v\n", err)
             return
         }
+    }
+}
+
+func broadcast() {
+    var currentPlayers = make(map[string]uint8)
+    for _, p := range clients {
+        currentPlayers[p.Handle] = p.Score
+    }
+    log.Println(currentPlayers)
+    for conn := range clients {
+        inform <- clientBroadcast{Client: conn, Players: &currentPlayers}
     }
 }
 
