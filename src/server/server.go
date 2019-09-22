@@ -15,8 +15,21 @@ type update struct {
     Content string `json:"content"`
 }
 
+type clientPlayer struct {
+    Client *websocket.Conn
+    Player *player
+}
+
+type clientBroadcast struct {
+    Client  *websocket.Conn
+    Players *map[string]uint8
+}
+
 var clients = make(map[*websocket.Conn]*player)
 var upgrader = websocket.Upgrader{}
+var add = make(chan clientPlayer)
+var remove = make(chan *websocket.Conn)
+var inform = make(chan clientBroadcast)
 
 func broadcast() {
     var currentPlayers = make(map[string]uint8)
@@ -24,10 +37,8 @@ func broadcast() {
         currentPlayers[p.Handle] = p.Score
     }
     log.Println(currentPlayers)
-    for client := range clients {
-        if err := client.WriteJSON(currentPlayers); err != nil {
-            log.Printf("%#v\n", err)
-        }
+    for conn := range clients {
+        inform <- clientBroadcast{Client: conn, Players: &currentPlayers}
     }
 }
 
@@ -42,15 +53,36 @@ func Socket(w http.ResponseWriter, r *http.Request) {
         log.Printf("%#v\n", err)
         return
     }
-    clients[conn] = p
-    broadcast()
+    add <- clientPlayer{Client: conn, Player: p}
     for {
         u := &update{}
         if err := conn.ReadJSON(u); err != nil {
-            delete(clients, conn)
-            broadcast()
+            remove <- conn
             log.Printf("%#v\n", err)
             return
+        }
+    }
+}
+
+func Memo() {
+    for {
+        select {
+        case payload := <-add:
+            clients[payload.Client] = payload.Player
+        case payload := <-remove:
+            delete(clients, payload)
+        }
+        broadcast()
+    }
+}
+
+func Relay() {
+    for {
+        select {
+        case payload := <-inform:
+            if err := payload.Client.WriteJSON(payload.Players); err != nil {
+                log.Printf("%#v\n", err)
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ function inscribe(ledger) {
         html += "<li><b>" + key + "</b> " + ledger[key] + "</li>";
     }
     html += "</ul>";
-    LEDGER.innterHTLM = html;
+    LEDGER.innerHTML = html;
 }
 
 function connect() {
