@@ -22,12 +22,30 @@ function client(handle) {
     };
 }
 
+function randomColor() {
+    var h = Math.floor(Math.random() * 360);
+    var s = Math.floor(Math.random() * 50) + 50;
+    var l = Math.floor(Math.random() * 75);
+    var a = (Math.random() * 0.25) + 0.25;
+    return "hsla(" + h.toString() + ", " + s.toString() + "%, " +
+        l.toString() + "%, " + a.toString() + ")";
+}
+
 function inscribe(ledger) {
-    var html = "<ul>";
-    for (var key in ledger) {
-        html += "<li><b>" + key + "</b> " + ledger[key] + "</li>";
+    var html = "<tr><th>" +
+        "Handle" +
+        "</th><th>" +
+        "Score" +
+        "</th><th>" +
+        "Address" +
+        "</th></tr>";
+    var n = ledger.length;
+    for (var i = 0; i < n; i++) {
+        var l = ledger[i];
+        html += "<tr style=\"background:" + randomColor() + ";\"><td>" +
+            l.handle + "</td><td>" + l.score + "</td><td>" + l.address +
+            "</td></tr>";
     }
-    html += "</ul>";
     LEDGER.innerHTML = html;
 }
 

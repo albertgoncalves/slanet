@@ -3,33 +3,33 @@ package server
 import (
     "github.com/gorilla/websocket"
     "log"
+    "net"
     "net/http"
 )
 
-type player struct {
-    Handle string `json:"handle"`
-    Score  uint8
+type status struct {
+    Handle  string `json:"handle"`
+    Score   uint8  `json:"score"`
+    Address uint16 `json:"address"`
 }
 
 type update struct {
     Content string `json:"content"`
 }
 
-type clientMemo struct {
-    Client *websocket.Conn
-    Player *player
+type client struct {
+    Conn   *websocket.Conn
+    Status *status
 }
 
-type clientBroadcast struct {
-    Client  *websocket.Conn
-    Players *map[string]uint8
-}
-
-var clients = make(map[*websocket.Conn]*player)
 var upgrader = websocket.Upgrader{}
-var add = make(chan clientMemo)
+var add = make(chan client)
 var remove = make(chan *websocket.Conn)
-var inform = make(chan clientBroadcast)
+var clients = make(map[*websocket.Conn]*status)
+
+func address(conn *websocket.Conn) uint16 {
+    return uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
+}
 
 func Socket(w http.ResponseWriter, r *http.Request) {
     conn, err := upgrader.Upgrade(w, r, nil)
@@ -37,12 +37,12 @@ func Socket(w http.ResponseWriter, r *http.Request) {
         log.Printf("%#v\n", err)
         return
     }
-    p := &player{Score: 0}
-    if err := conn.ReadJSON(p); err != nil {
+    s := &status{Score: 0, Address: address(conn)}
+    if err := conn.ReadJSON(s); err != nil {
         log.Printf("%#v\n", err)
         return
     }
-    add <- clientMemo{Client: conn, Player: p}
+    add <- client{Conn: conn, Status: s}
     for {
         u := &update{}
         if err := conn.ReadJSON(u); err != nil {
@@ -53,34 +53,23 @@ func Socket(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func broadcast() {
-    var currentPlayers = make(map[string]uint8)
-    for _, p := range clients {
-        currentPlayers[p.Handle] = p.Score
-    }
-    log.Println(currentPlayers)
-    for conn := range clients {
-        inform <- clientBroadcast{Client: conn, Players: &currentPlayers}
-    }
-}
-
-func Memo() {
+func Broadcast() {
     for {
         select {
-        case payload := <-add:
-            clients[payload.Client] = payload.Player
-        case payload := <-remove:
-            delete(clients, payload)
+        case client := <-add:
+            clients[client.Conn] = client.Status
+        case conn := <-remove:
+            delete(clients, conn)
+            conn.Close()
         }
-        broadcast()
-    }
-}
-
-func Relay() {
-    for {
-        select {
-        case payload := <-inform:
-            if err := payload.Client.WriteJSON(payload.Players); err != nil {
+        var players = make([]*status, len(clients))
+        i := 0
+        for _, p := range clients {
+            players[i] = p
+            i++
+        }
+        for conn := range clients {
+            if err := conn.WriteJSON(players); err != nil {
                 log.Printf("%#v\n", err)
             }
         }

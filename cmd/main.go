@@ -11,8 +11,7 @@ func main() {
     log.Printf("listening on http://localhost%s/\n", port)
     http.HandleFunc("/ws", server.Socket)
     http.Handle("/", http.FileServer(http.Dir("client")))
-    go server.Memo()
-    go server.Relay()
+    go server.Broadcast()
     if err := http.ListenAndServe(port, nil); err != nil {
         log.Fatal(err)
     }
