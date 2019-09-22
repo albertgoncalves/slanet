@@ -77,7 +77,7 @@ jsfmts () {
     cd "$JSPATH" || exit
     tidy -q -m "$JSPATH/src/index.html"
     sed -i 's/[ \t]\+$//' "$JSPATH/src/index.html"
-    for f in "$JSPATH"/src/*.js; do
+    for f in "$JSPATH"/src/js/*.js; do
         echo "$f"
         clang-format -i "$f"
     done

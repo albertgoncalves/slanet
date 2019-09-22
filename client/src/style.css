@@ -5,7 +5,17 @@ body {
     width: 500px;
 }
 
-div .center {
+div#figure {
+    height: 500px;
+}
+
+svg {
+    overflow: visible;
+    height: 100%;
+    width: 100%;
+}
+
+div.center {
     text-align: center;
     display: block;
     margin: 5px;
