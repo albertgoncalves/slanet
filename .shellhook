@@ -9,17 +9,19 @@ fi
 
 export WD
 export GOPATH
+export JSPATH
 WD=$(pwd)
-GOPATH=$WD
+GOPATH="$WD/server"
+JSPATH="$WD/client"
 
 if [ ! -d "$GOPATH/bin" ]; then
     mkdir "$GOPATH/bin"
 fi
 
-if [ ! -f "$GOPATH/.goinit" ]; then
+if [ ! -f "$WD/.goinit" ]; then
     go get -v golang.org/x/lint/golint
     go get -v github.com/gorilla/websocket
-    touch "$GOPATH/.goinit"
+    touch "$WD/.goinit"
 fi
 
 gofmts() {
@@ -68,16 +70,19 @@ if [ ! -f "$WD/.jsinit" ]; then
     touch "$WD/.jsinit"
 fi
 
-export HTML_TIDY=$WD/.tidyrc
+export HTML_TIDY=$JSPATH/.tidyrc
 
 jsfmts () {
-    tidy -q -m "$WD/client/index.html"
-    sed -i 's/[ \t]\+$//' "$WD/client/index.html"
-    for f in "$WD"/client/*.js; do
+    wd=$(pwd)
+    cd "$JSPATH" || exit
+    tidy -q -m "$JSPATH/src/index.html"
+    sed -i 's/[ \t]\+$//' "$JSPATH/src/index.html"
+    for f in "$JSPATH"/src/*.js; do
         echo "$f"
         clang-format -i "$f"
     done
+    cd "$wd" || exit
 }
 
 export -f jsfmts
-alias jshint="node_modules/jshint/bin/jshint"
+alias jshint="$JSPATH/node_modules/jshint/bin/jshint"

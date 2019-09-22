@@ -22,7 +22,6 @@ type client struct {
     Status *status
 }
 
-var upgrader = websocket.Upgrader{}
 var add = make(chan client)
 var remove = make(chan *websocket.Conn)
 var clients = make(map[*websocket.Conn]*status)
@@ -31,7 +30,13 @@ func address(conn *websocket.Conn) uint16 {
     return uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
 }
 
-func Socket(w http.ResponseWriter, r *http.Request) {
+var upgrader = websocket.Upgrader{
+    ReadBufferSize:  1024,
+    WriteBufferSize: 1024,
+    CheckOrigin:     func(r *http.Request) bool { return true },
+}
+
+func socket(w http.ResponseWriter, r *http.Request) {
     conn, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
         log.Printf("%#v\n", err)
@@ -54,7 +59,7 @@ func Socket(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func Broadcast() {
+func broadcast() {
     for {
         select {
         case client := <-add:
@@ -74,4 +79,12 @@ func Broadcast() {
             }
         }
     }
+}
+
+func Run(directory, port string) error {
+    log.Printf("listening on http://localhost%s/\n", port)
+    http.HandleFunc("/ws", socket)
+    http.Handle("/", http.FileServer(http.Dir(directory)))
+    go broadcast()
+    return http.ListenAndServe(port, nil)
 }

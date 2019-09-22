@@ -6,7 +6,7 @@
 !server/
 !cmd/
 !*.go
-!client
+!client/
 !*.html
 !*.css
 !*.js
