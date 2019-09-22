@@ -37,6 +37,7 @@ func Socket(w http.ResponseWriter, r *http.Request) {
         log.Printf("%#v\n", err)
         return
     }
+    defer conn.Close()
     s := &status{Score: 0, Address: address(conn)}
     if err := conn.ReadJSON(s); err != nil {
         log.Printf("%#v\n", err)
@@ -60,7 +61,6 @@ func Broadcast() {
             clients[client.Conn] = client.Status
         case conn := <-remove:
             delete(clients, conn)
-            conn.Close()
         }
         var players = make([]*status, len(clients))
         i := 0
