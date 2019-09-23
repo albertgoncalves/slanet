@@ -1,11 +1,3 @@
-var FIGURE = document.getElementById("figure");
-
-var SHAPE = {
-    rectangle: "rect",
-    circle: "circle",
-    triangle: "polygon",
-};
-
 var N = 3;
 
 var COLOR = {
@@ -30,10 +22,12 @@ var COLOR = {
 };
 
 var STATE = {};
+var SELECTED = [];
+
+var FIGURE = document.getElementById("figure");
 
 var WIDTH = FIGURE.offsetWidth;
 var HALF_WIDTH = WIDTH / 2;
-
 var HEIGHT = FIGURE.offsetHeight;
 
 var FRAME_WIDTH = 150;
@@ -114,21 +108,6 @@ var Y_ROUTER = [
     [Y_TOKEN_THREE_TOP, Y_TOKEN_THREE_CENTER, Y_TOKEN_THREE_BOTTOM],
 ];
 
-var SELECTED = [];
-
-function solid(attributes, color) {
-    fill(attributes, color.solid);
-}
-
-function empty(attributes, color) {
-    outline(attributes, color.solid);
-}
-
-function transparent(attributes, color) {
-    outline(attributes, color.solid);
-    fill(attributes, color.transparent);
-}
-
 function createSvg(id, payload) {
     var svg =
         document.createElementNS("http://www.w3.org/2000/svg", payload.shape);
@@ -153,9 +132,22 @@ function opacity(attributes, alpha) {
     attributes.push(["opacity", alpha]);
 }
 
+function solid(attributes, color) {
+    fill(attributes, color.solid);
+}
+
+function empty(attributes, color) {
+    outline(attributes, color.solid);
+}
+
+function transparent(attributes, color) {
+    outline(attributes, color.solid);
+    fill(attributes, color.transparent);
+}
+
 function rectangle(id, width, height, x, y) {
     return {
-        shape: SHAPE.rectangle,
+        shape: "rect",
         attributes: [
             ["id", id],
             ["width", width],
@@ -168,7 +160,7 @@ function rectangle(id, width, height, x, y) {
 
 function square(id, unit, x, y) {
     return {
-        shape: SHAPE.rectangle,
+        shape: "rect",
         attributes: [
             ["id", id],
             ["width", unit],
@@ -183,7 +175,7 @@ function square(id, unit, x, y) {
 function circle(id, diameter, x, y) {
     radius = diameter / 2;
     return {
-        shape: SHAPE.circle,
+        shape: "circle",
         attributes: [
             ["id", id],
             ["r", radius],
@@ -196,7 +188,7 @@ function circle(id, diameter, x, y) {
 
 function triangle(id, unit, x, y) {
     return {
-        shape: SHAPE.triangle,
+        shape: "polygon",
         attributes: [
             ["id", id],
             ["points", [x, y + unit, x + unit, y + unit, x + (unit / 2), y]],
