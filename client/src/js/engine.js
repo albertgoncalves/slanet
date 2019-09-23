@@ -6,6 +6,8 @@ var SHAPE = {
     triangle: "polygon",
 };
 
+var N = 3;
+
 var COLOR = {
     red: {
         solid: "hsl(0, 60%, 60%)",
@@ -26,6 +28,8 @@ var COLOR = {
         solid: "hsla(0, 0%, 25%, 25%)",
     },
 };
+
+var STATE = {};
 
 var WIDTH = FIGURE.offsetWidth;
 var HALF_WIDTH = WIDTH / 2;
@@ -64,44 +68,52 @@ var Y_TOKEN_TWO_TOP = THIRD_FRAME_HEIGHT - HALF_UNIT;
 var Y_TOKEN_TWO_BOTTOM = (THIRD_FRAME_HEIGHT * 2) - HALF_UNIT;
 var Y_TOKEN_ONE = HALF_FRAME_HEIGHT - HALF_UNIT;
 
-var ROUTER = {
-    "frame-0-0": {
+var FRAME_ROUTER = {
+    "0,0": {
         x: X_TOKEN_LEFT,
         y: Y_TOP,
     },
-    "frame-0-1": {
+    "0,1": {
         x: X_TOKEN_LEFT,
         y: Y_CENTER,
     },
-    "frame-0-2": {
+    "0,2": {
         x: X_TOKEN_LEFT,
         y: Y_BOTTOM,
     },
-    "frame-1-0": {
+    "1,0": {
         x: X_TOKEN_CENTER,
         y: Y_TOP,
     },
-    "frame-1-1": {
+    "1,1": {
         x: X_TOKEN_CENTER,
         y: Y_CENTER,
     },
-    "frame-1-2": {
+    "1,2": {
         x: X_TOKEN_CENTER,
         y: Y_BOTTOM,
     },
-    "frame-2-0": {
+    "2,0": {
         x: X_TOKEN_RIGHT,
         y: Y_TOP,
     },
-    "frame-2-1": {
+    "2,1": {
         x: X_TOKEN_RIGHT,
         y: Y_CENTER,
     },
-    "frame-2-2": {
+    "2,2": {
         x: X_TOKEN_RIGHT,
         y: Y_BOTTOM,
     },
 };
+
+var Y_ROUTER = [
+    [Y_TOKEN_ONE],
+    [Y_TOKEN_TWO_TOP, Y_TOKEN_TWO_BOTTOM],
+    [MARGIN, Y_TOKEN_THREE_CENTER, Y_TOKEN_THREE_BOTTOM],
+];
+
+var SELECTED = [];
 
 function solid(attributes, color) {
     fill(attributes, color.solid);
@@ -114,10 +126,6 @@ function empty(attributes, color) {
 function transparent(attributes, color) {
     outline(attributes, color.solid);
     fill(attributes, color.transparent);
-}
-
-function deleteElement(id) {
-    document.getElementById(id).remove();
 }
 
 function createSvg(id, payload) {
@@ -196,82 +204,101 @@ function triangle(id, unit, x, y) {
     };
 }
 
-function toBlack(id) {
-    return function(e) {
-        document.getElementById(id).style.stroke = COLOR.black.solid;
-        document.getElementById(id).onclick = toGray(id);
-    };
-}
-
-function toGray(id) {
-    return function(e) {
-        document.getElementById(id).style.stroke = COLOR.gray.solid;
-        document.getElementById(id).onclick = toBlack(id);
-    };
+function remove(array, index) {
+    var newArray = new Array(array.length - 1);
+    var offset = 0;
+    for (var i = 0; i < array.length; i++) {
+        if (i !== index) {
+            newArray[i - offset] = array[i];
+        } else {
+            offset += 1;
+        }
+    }
+    return newArray;
 }
 
 function frame(id, x, y) {
-    createSvg("canvas", function() {
-        var payload = rectangle(id, FRAME_WIDTH, FRAME_HEIGHT, x, y);
-        empty(payload.attributes, COLOR.gray);
-        return payload;
-    }());
-    document.getElementById(id).onclick = toBlack(id);
+    var payload = rectangle(id, FRAME_WIDTH, FRAME_HEIGHT, x, y);
+    empty(payload.attributes, COLOR.gray);
+    createSvg("canvas", payload);
+    document.getElementById(id).onclick = function(_) {
+        if (!STATE.hasOwnProperty(id)) {
+            return;
+        }
+        for (var i = 0; i < N; i++) {
+            if (SELECTED[i] === id) {
+                document.getElementById(id).style.stroke = COLOR.gray.solid;
+                SELECTED = remove(SELECTED, i);
+                return;
+            }
+        }
+        if (N <= SELECTED.length) {
+            document.getElementById(SELECTED[0]).style.stroke =
+                COLOR.gray.solid;
+            SELECTED = remove(SELECTED, 0);
+        }
+        document.getElementById(id).style.stroke = COLOR.black.solid;
+        SELECTED.push(id);
+    };
 }
 
-function token(id, shape, fill, color, x, y) {
-    createSvg("canvas", function() {
-        var payload = shape(id, UNIT, x, y);
-        fill(payload.attributes, color);
-        return payload;
-    }());
-}
-
-function tokenThree(id, shape, fill, color) {
-    var route = ROUTER[id];
-    var ids = [id + "-0", id + "-1", id + "-2"];
-    token(ids[0], shape, fill, color, route.x, route.y + MARGIN);
-    token(ids[1], shape, fill, color, route.x, route.y + Y_TOKEN_THREE_CENTER);
-    token(ids[2], shape, fill, color, route.x, route.y + Y_TOKEN_THREE_BOTTOM);
-    return ids;
-}
-
-function tokenTwo(id, shape, fill, color) {
-    var route = ROUTER[id];
-    var ids = [id + "-0", id + "-1"];
-    token(ids[0], shape, fill, color, route.x, route.y + Y_TOKEN_TWO_TOP);
-    token(ids[1], shape, fill, color, route.x, route.y + Y_TOKEN_TWO_BOTTOM);
-    return ids;
-}
-
-function tokenOne(id, shape, fill, color) {
-    var route = ROUTER[id];
-    var ids = [id + "-0"];
-    token(ids[0], shape, fill, color, route.x, route.y + Y_TOKEN_ONE);
-    return ids;
+function token(id, shape, fill, color, frequency) {
+    var route = FRAME_ROUTER[id];
+    var ids = new Array(frequency);
+    for (var i = 0; i < frequency; i++) {
+        ids[i] = id + "," + i.toString();
+    }
+    var yOffset = Y_ROUTER[frequency - 1];
+    var payload;
+    for (var j = 0; j < frequency; j++) {
+        payload = shape(ids[j], UNIT, route.x, route.y + yOffset[j]);
+        fill(payload.attributes, COLOR[color]);
+        createSvg("canvas", payload);
+    }
+    STATE[id] = {
+        token: {
+            shape: shape.name,
+            fill: fill.name,
+            color: color,
+            frequency: frequency,
+        },
+        reset: function() {
+            for (var i = 0; i < frequency; i++) {
+                document.getElementById(ids[i]).remove();
+            }
+            delete STATE[id];
+        }
+    };
 }
 
 function background() {
-    frame("frame-0-0", X_LEFT, Y_TOP);
-    frame("frame-0-1", X_LEFT, Y_CENTER);
-    frame("frame-0-2", X_LEFT, Y_BOTTOM);
-    frame("frame-1-0", X_CENTER, Y_TOP);
-    frame("frame-1-1", X_CENTER, Y_CENTER);
-    frame("frame-1-2", X_CENTER, Y_BOTTOM);
-    frame("frame-2-0", X_RIGHT, Y_TOP);
-    frame("frame-2-1", X_RIGHT, Y_CENTER);
-    frame("frame-2-2", X_RIGHT, Y_BOTTOM);
+    frame("0,0", X_LEFT, Y_TOP);
+    frame("0,1", X_LEFT, Y_CENTER);
+    frame("0,2", X_LEFT, Y_BOTTOM);
+    frame("1,0", X_CENTER, Y_TOP);
+    frame("1,1", X_CENTER, Y_CENTER);
+    frame("1,2", X_CENTER, Y_BOTTOM);
+    frame("2,0", X_RIGHT, Y_TOP);
+    frame("2,1", X_RIGHT, Y_CENTER);
+    frame("2,2", X_RIGHT, Y_BOTTOM);
 }
 
 function demo() {
     background();
-    tokenThree("frame-0-0", square, solid, COLOR.red);
-    tokenThree("frame-0-1", square, transparent, COLOR.green);
-    tokenThree("frame-0-2", square, empty, COLOR.blue);
-    tokenTwo("frame-1-0", circle, solid, COLOR.green);
-    tokenTwo("frame-1-1", circle, transparent, COLOR.blue);
-    tokenTwo("frame-1-2", circle, empty, COLOR.red);
-    tokenOne("frame-2-0", triangle, solid, COLOR.blue);
-    tokenOne("frame-2-1", triangle, transparent, COLOR.red);
-    tokenOne("frame-2-2", triangle, empty, COLOR.green);
+    token("0,0", square, solid, "red", 3);
+    token("0,1", square, transparent, "green", 3);
+    token("0,2", square, empty, "blue", 3);
+    token("1,0", circle, solid, "green", 2);
+    token("1,1", circle, transparent, "blue", 2);
+    token("1,2", circle, empty, "red", 2);
+    token("2,0", triangle, solid, "blue", 1);
+    token("2,1", triangle, transparent, "red", 1);
+    token("2,2", triangle, empty, "green", 1);
+    STATE["1,0"].reset();
+    STATE["2,1"].reset();
+    STATE["0,2"].reset();
+    token("1,0", circle, solid, "blue", 2);
+    token("2,1", triangle, transparent, "green", 1);
+    token("0,2", square, empty, "red", 3);
+    console.log(STATE);
 }
