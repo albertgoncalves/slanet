@@ -20,46 +20,48 @@ var COLOR = {
         transparent: "hsla(210, 75%, 55%, 35%)",
     },
     black: {
-        solid: "hsla(0, 0%, 25%, 45%)",
-        transparent: "hsla(0, 0%, 25%, 25%)",
+        solid: "hsla(0, 0%, 25%, 75%)",
+    },
+    gray: {
+        solid: "hsla(0, 0%, 25%, 25%)",
     },
 };
 
 var WIDTH = FIGURE.offsetWidth;
-var HALF_WIDTH = WIDTH / 2.0;
+var HALF_WIDTH = WIDTH / 2;
 
 var HEIGHT = FIGURE.offsetHeight;
 
 var FRAME_WIDTH = 150;
-var HALF_FRAME_WIDTH = FRAME_WIDTH / 2.0;
+var HALF_FRAME_WIDTH = FRAME_WIDTH / 2;
 
 var FRAME_HEIGHT = 200;
-var HALF_FRAME_HEIGHT = FRAME_HEIGHT / 2.0;
+var HALF_FRAME_HEIGHT = FRAME_HEIGHT / 2;
 
-var THIRD_FRAME_HEIGHT = FRAME_HEIGHT / 3.0;
+var THIRD_FRAME_HEIGHT = FRAME_HEIGHT / 3;
 
 var UNIT = 50;
-var HALF_UNIT = UNIT / 2.0;
+var HALF_UNIT = UNIT / 2;
 
 var MARGIN = 9;
-
 var X_OFFSET = 150;
 var Y_OFFSET = 25;
+
 var X_LEFT = X_OFFSET;
 var X_CENTER = HALF_WIDTH - HALF_FRAME_WIDTH;
 var X_RIGHT = WIDTH - X_OFFSET - FRAME_WIDTH;
 var Y_TOP = Y_OFFSET;
-var Y_CENTER = (HEIGHT / 2.0) - HALF_FRAME_HEIGHT;
+var Y_CENTER = (HEIGHT / 2) - HALF_FRAME_HEIGHT;
 var Y_BOTTOM = HEIGHT - Y_OFFSET - FRAME_HEIGHT;
 
 var X_TOKEN_LEFT = HALF_FRAME_WIDTH + X_OFFSET - HALF_UNIT;
 var X_TOKEN_CENTER = HALF_WIDTH - HALF_UNIT;
-var X_TOKEN_RIGHT = HALF_WIDTH + X_OFFSET;
+var X_TOKEN_RIGHT = WIDTH - X_OFFSET - HALF_FRAME_WIDTH - HALF_UNIT;
 
 var Y_TOKEN_THREE_CENTER = HALF_FRAME_HEIGHT - HALF_UNIT;
 var Y_TOKEN_THREE_BOTTOM = FRAME_HEIGHT - MARGIN - UNIT;
 var Y_TOKEN_TWO_TOP = THIRD_FRAME_HEIGHT - HALF_UNIT;
-var Y_TOKEN_TWO_BOTTOM = (THIRD_FRAME_HEIGHT * 2.0) - HALF_UNIT;
+var Y_TOKEN_TWO_BOTTOM = (THIRD_FRAME_HEIGHT * 2) - HALF_UNIT;
 var Y_TOKEN_ONE = HALF_FRAME_HEIGHT - HALF_UNIT;
 
 var ROUTER = {
@@ -135,7 +137,7 @@ function fill(attributes, color) {
 function outline(attributes, color) {
     fill(attributes, "white");
     attributes.push(["stroke", color]);
-    attributes.push(["stroke-width", "3px"]);
+    attributes.push(["stroke-width", "3.75px"]);
 }
 
 function opacity(attributes, alpha) {
@@ -170,7 +172,7 @@ function square(id, unit, x, y) {
 }
 
 function circle(id, diameter, x, y) {
-    radius = diameter / 2.0;
+    radius = diameter / 2;
     return {
         shape: SHAPE.circle,
         attributes: [
@@ -188,21 +190,33 @@ function triangle(id, unit, x, y) {
         shape: SHAPE.triangle,
         attributes: [
             ["id", id],
-            ["points", [x, y + unit, x + unit, y + unit, x + (unit / 2.0), y]],
+            ["points", [x, y + unit, x + unit, y + unit, x + (unit / 2), y]],
             ["pointer-events", "none"],
         ],
+    };
+}
+
+function toBlack(id) {
+    return function(e) {
+        document.getElementById(id).style.stroke = COLOR.black.solid;
+        document.getElementById(id).onclick = toGray(id);
+    };
+}
+
+function toGray(id) {
+    return function(e) {
+        document.getElementById(id).style.stroke = COLOR.gray.solid;
+        document.getElementById(id).onclick = toBlack(id);
     };
 }
 
 function frame(id, x, y) {
     createSvg("canvas", function() {
         var payload = rectangle(id, FRAME_WIDTH, FRAME_HEIGHT, x, y);
-        empty(payload.attributes, COLOR.black);
+        empty(payload.attributes, COLOR.gray);
         return payload;
     }());
-    document.getElementById(id).onclick = function(e) {
-        console.log(id);
-    };
+    document.getElementById(id).onclick = toBlack(id);
 }
 
 function token(id, shape, fill, color, x, y) {
