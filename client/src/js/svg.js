@@ -202,12 +202,12 @@ function frame(id, x, y) {
     }());
     document.getElementById(id).onclick = function(e) {
         console.log(id);
-    }
+    };
 }
 
 function token(id, shape, fill, color, x, y) {
     createSvg("canvas", function() {
-        var payload = shape(id, UNIT, x, y)
+        var payload = shape(id, UNIT, x, y);
         fill(payload.attributes, color);
         return payload;
     }());
@@ -219,7 +219,7 @@ function tokenThree(id, shape, fill, color) {
     token(ids[0], shape, fill, color, route.x, route.y + MARGIN);
     token(ids[1], shape, fill, color, route.x, route.y + Y_TOKEN_THREE_CENTER);
     token(ids[2], shape, fill, color, route.x, route.y + Y_TOKEN_THREE_BOTTOM);
-    return ids
+    return ids;
 }
 
 function tokenTwo(id, shape, fill, color) {
@@ -227,14 +227,14 @@ function tokenTwo(id, shape, fill, color) {
     var ids = [id + "-0", id + "-1"];
     token(ids[0], shape, fill, color, route.x, route.y + Y_TOKEN_TWO_TOP);
     token(ids[1], shape, fill, color, route.x, route.y + Y_TOKEN_TWO_BOTTOM);
-    return ids
+    return ids;
 }
 
 function tokenOne(id, shape, fill, color) {
     var route = ROUTER[id];
     var ids = [id + "-0"];
     token(ids[0], shape, fill, color, route.x, route.y + Y_TOKEN_ONE);
-    return ids
+    return ids;
 }
 
 function background() {
