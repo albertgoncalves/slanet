@@ -29,7 +29,6 @@ var WIDTH = FIGURE.offsetWidth;
 var HALF_WIDTH = WIDTH / 2.0;
 
 var HEIGHT = FIGURE.offsetHeight;
-var HALF_HEIGHT = HEIGHT / 2.0;
 
 var FRAME_WIDTH = 150;
 var HALF_FRAME_WIDTH = FRAME_WIDTH / 2.0;
@@ -38,25 +37,69 @@ var FRAME_HEIGHT = 200;
 var HALF_FRAME_HEIGHT = FRAME_HEIGHT / 2.0;
 
 var THIRD_FRAME_HEIGHT = FRAME_HEIGHT / 3.0;
-var TWO_THIRD_FRAME_HEIGHT = THIRD_FRAME_HEIGHT * 2.0;
 
 var UNIT = 50;
 var HALF_UNIT = UNIT / 2.0;
 
 var MARGIN = 9;
 
-var Y_TOKEN_THREE = {
-    top: MARGIN,
-    center: HALF_FRAME_HEIGHT - HALF_UNIT,
-    bottom: FRAME_HEIGHT - MARGIN - UNIT,
-};
+var X_OFFSET = 150;
+var Y_OFFSET = 25;
+var X_LEFT = X_OFFSET;
+var X_CENTER = HALF_WIDTH - HALF_FRAME_WIDTH;
+var X_RIGHT = WIDTH - X_OFFSET - FRAME_WIDTH;
+var Y_TOP = Y_OFFSET;
+var Y_CENTER = (HEIGHT / 2.0) - HALF_FRAME_HEIGHT;
+var Y_BOTTOM = HEIGHT - Y_OFFSET - FRAME_HEIGHT;
 
-var Y_TOKEN_TWO = {
-    top: THIRD_FRAME_HEIGHT - HALF_UNIT,
-    bottom: TWO_THIRD_FRAME_HEIGHT - HALF_UNIT,
-};
+var X_TOKEN_LEFT = HALF_FRAME_WIDTH + X_OFFSET - HALF_UNIT;
+var X_TOKEN_CENTER = HALF_WIDTH - HALF_UNIT;
+var X_TOKEN_RIGHT = HALF_WIDTH + X_OFFSET;
 
+var Y_TOKEN_THREE_CENTER = HALF_FRAME_HEIGHT - HALF_UNIT;
+var Y_TOKEN_THREE_BOTTOM = FRAME_HEIGHT - MARGIN - UNIT;
+var Y_TOKEN_TWO_TOP = THIRD_FRAME_HEIGHT - HALF_UNIT;
+var Y_TOKEN_TWO_BOTTOM = (THIRD_FRAME_HEIGHT * 2.0) - HALF_UNIT;
 var Y_TOKEN_ONE = HALF_FRAME_HEIGHT - HALF_UNIT;
+
+var ROUTER = {
+    "frame-0-0": {
+        x: X_TOKEN_LEFT,
+        y: Y_TOP,
+    },
+    "frame-0-1": {
+        x: X_TOKEN_LEFT,
+        y: Y_CENTER,
+    },
+    "frame-0-2": {
+        x: X_TOKEN_LEFT,
+        y: Y_BOTTOM,
+    },
+    "frame-1-0": {
+        x: X_TOKEN_CENTER,
+        y: Y_TOP,
+    },
+    "frame-1-1": {
+        x: X_TOKEN_CENTER,
+        y: Y_CENTER,
+    },
+    "frame-1-2": {
+        x: X_TOKEN_CENTER,
+        y: Y_BOTTOM,
+    },
+    "frame-2-0": {
+        x: X_TOKEN_RIGHT,
+        y: Y_TOP,
+    },
+    "frame-2-1": {
+        x: X_TOKEN_RIGHT,
+        y: Y_CENTER,
+    },
+    "frame-2-2": {
+        x: X_TOKEN_RIGHT,
+        y: Y_BOTTOM,
+    },
+};
 
 function solid(attributes, color) {
     fill(attributes, color.solid);
@@ -92,7 +135,7 @@ function fill(attributes, color) {
 function outline(attributes, color) {
     fill(attributes, "white");
     attributes.push(["stroke", color]);
-    attributes.push(["stroke-width", "2.75px"]);
+    attributes.push(["stroke-width", "3px"]);
 }
 
 function opacity(attributes, alpha) {
@@ -170,55 +213,51 @@ function token(id, shape, fill, color, x, y) {
     }());
 }
 
-function background(xOffset, yOffset) {
-    var xLeft = xOffset;
-    var xCenter = HALF_WIDTH - HALF_FRAME_WIDTH;
-    var xRight = WIDTH - xOffset - FRAME_WIDTH;
-    var yTop = yOffset;
-    var yCenter = HALF_HEIGHT - HALF_FRAME_HEIGHT;
-    var yBottom = HEIGHT - yOffset - FRAME_HEIGHT;
-    frame("frame-0-0", xLeft, yTop);
-    frame("frame-0-1", xLeft, yCenter);
-    frame("frame-0-2", xLeft, yBottom);
-    frame("frame-1-0", xCenter, yTop);
-    frame("frame-1-1", xCenter, yCenter);
-    frame("frame-1-2", xCenter, yBottom);
-    frame("frame-2-0", xRight, yTop);
-    frame("frame-2-1", xRight, yCenter);
-    frame("frame-2-2", xRight, yBottom);
+function tokenThree(id, shape, fill, color) {
+    var route = ROUTER[id];
+    var ids = [id + "-0", id + "-1", id + "-2"];
+    token(ids[0], shape, fill, color, route.x, route.y + MARGIN);
+    token(ids[1], shape, fill, color, route.x, route.y + Y_TOKEN_THREE_CENTER);
+    token(ids[2], shape, fill, color, route.x, route.y + Y_TOKEN_THREE_BOTTOM);
+    return ids
+}
 
-    var xTokenLeft = HALF_FRAME_WIDTH + xOffset - HALF_UNIT;
-    var xTokenCenter = HALF_WIDTH - HALF_UNIT;
-    var xTokenRight = HALF_WIDTH + xOffset;
+function tokenTwo(id, shape, fill, color) {
+    var route = ROUTER[id];
+    var ids = [id + "-0", id + "-1"];
+    token(ids[0], shape, fill, color, route.x, route.y + Y_TOKEN_TWO_TOP);
+    token(ids[1], shape, fill, color, route.x, route.y + Y_TOKEN_TWO_BOTTOM);
+    return ids
+}
 
-    token("frame-0-0-square-0", square, solid, COLOR.red, xTokenLeft, yTop + Y_TOKEN_THREE.top);
-    token("frame-0-0-square-1", square, solid, COLOR.red, xTokenLeft, yTop + Y_TOKEN_THREE.center);
-    token("frame-0-0-square-2", square, solid, COLOR.red, xTokenLeft, yTop + Y_TOKEN_THREE.bottom);
+function tokenOne(id, shape, fill, color) {
+    var route = ROUTER[id];
+    var ids = [id + "-0"];
+    token(ids[0], shape, fill, color, route.x, route.y + Y_TOKEN_ONE);
+    return ids
+}
 
-    token("frame-0-1-square-0", square, transparent, COLOR.green, xTokenLeft, yCenter + Y_TOKEN_THREE.top);
-    token("frame-0-1-square-1", square, transparent, COLOR.green, xTokenLeft, yCenter + Y_TOKEN_THREE.center);
-    token("frame-0-1-square-2", square, transparent, COLOR.green, xTokenLeft, yCenter + Y_TOKEN_THREE.bottom);
-
-    token("frame-0-2-square-0", square, empty, COLOR.blue, xTokenLeft, yBottom + Y_TOKEN_THREE.top);
-    token("frame-0-2-square-1", square, empty, COLOR.blue, xTokenLeft, yBottom + Y_TOKEN_THREE.center);
-    token("frame-0-2-square-2", square, empty, COLOR.blue, xTokenLeft, yBottom + Y_TOKEN_THREE.bottom);
-
-    token("frame-1-0-circle-0", circle, solid, COLOR.green, xTokenCenter, yTop + Y_TOKEN_TWO.top);
-    token("frame-1-0-circle-1", circle, solid, COLOR.green, xTokenCenter, yTop + Y_TOKEN_TWO.bottom);
-
-    token("frame-1-1-circle-0", circle, transparent, COLOR.blue, xTokenCenter, yCenter + Y_TOKEN_TWO.top);
-    token("frame-1-1-circle-1", circle, transparent, COLOR.blue, xTokenCenter, yCenter + Y_TOKEN_TWO.bottom);
-
-    token("frame-1-2-circle-0", circle, empty, COLOR.red, xTokenCenter, yBottom + Y_TOKEN_TWO.top);
-    token("frame-1-2-circle-1", circle, empty, COLOR.red, xTokenCenter, yBottom + Y_TOKEN_TWO.bottom);
-
-    token("frame-2-0-triange-0", triangle, solid, COLOR.blue, xTokenRight, yTop + Y_TOKEN_ONE);
-
-    token("frame-2-1-triange-0", triangle, transparent, COLOR.red, xTokenRight, yCenter + Y_TOKEN_ONE);
-
-    token("frame-2-2-triange-0", triangle, empty, COLOR.green, xTokenRight, yBottom + Y_TOKEN_ONE);
+function background() {
+    frame("frame-0-0", X_LEFT, Y_TOP);
+    frame("frame-0-1", X_LEFT, Y_CENTER);
+    frame("frame-0-2", X_LEFT, Y_BOTTOM);
+    frame("frame-1-0", X_CENTER, Y_TOP);
+    frame("frame-1-1", X_CENTER, Y_CENTER);
+    frame("frame-1-2", X_CENTER, Y_BOTTOM);
+    frame("frame-2-0", X_RIGHT, Y_TOP);
+    frame("frame-2-1", X_RIGHT, Y_CENTER);
+    frame("frame-2-2", X_RIGHT, Y_BOTTOM);
 }
 
 function demo() {
-    background(150, 25)
+    background();
+    tokenThree("frame-0-0", square, solid, COLOR.red);
+    tokenThree("frame-0-1", square, transparent, COLOR.green);
+    tokenThree("frame-0-2", square, empty, COLOR.blue);
+    tokenTwo("frame-1-0", circle, solid, COLOR.green);
+    tokenTwo("frame-1-1", circle, transparent, COLOR.blue);
+    tokenTwo("frame-1-2", circle, empty, COLOR.red);
+    tokenOne("frame-2-0", triangle, solid, COLOR.blue);
+    tokenOne("frame-2-1", triangle, transparent, COLOR.red);
+    tokenOne("frame-2-2", triangle, empty, COLOR.green);
 }
