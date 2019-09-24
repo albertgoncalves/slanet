@@ -107,6 +107,18 @@ var Y_ROUTER = [
     [Y_TOKEN_THREE_TOP, Y_TOKEN_THREE_CENTER, Y_TOKEN_THREE_BOTTOM],
 ];
 
+var SHAPE_ROUTER = {
+    square: square,
+    circle: circle,
+    triangle: triangle,
+};
+
+var FILL_ROUTER = {
+    solid: solid,
+    transparent: transparent,
+    empty: empty,
+};
+
 var THICKNESS = "4.5px";
 
 function createSvg(id, payload) {
@@ -240,7 +252,7 @@ function remove(array, index) {
     return newArray;
 }
 
-function frame(id, x, y) {
+function drawFrame(callback, id, x, y) {
     var payload = rectangle(id, FRAME_WIDTH, FRAME_HEIGHT, x, y);
     createSvg("canvas", payload);
     var target = document.getElementById(id);
@@ -258,20 +270,23 @@ function frame(id, x, y) {
         if (!STATE.hasOwnProperty(id)) {
             return;
         }
-        for (var i = 0; i < N; i++) {
-            if (SELECTION[i] === id) {
-                target.style.stroke = GRAY.light;
-                SELECTION = remove(SELECTION, i);
-                return;
+        var n = SELECTION.length;
+        if (0 < n) {
+            for (var i = 0; i < n; i++) {
+                if (SELECTION[i].id === id) {
+                    target.style.stroke = GRAY.light;
+                    SELECTION = remove(SELECTION, i);
+                    return;
+                }
             }
         }
         target.style.stroke = GRAY.dark;
-        SELECTION.push(id);
-        var n = SELECTION.length;
-        if (n === N) {
-            console.log(SELECTION);
+        SELECTION.push(STATE[id].token);
+        n = SELECTION.length;
+        if (N <= n) {
+            callback(SELECTION);
             for (var j = 0; j < n; j++) {
-                document.getElementById(SELECTION[j]).style.stroke =
+                document.getElementById(SELECTION[j].id).style.stroke =
                     GRAY.light;
             }
             SELECTION = [];
@@ -279,28 +294,24 @@ function frame(id, x, y) {
     };
 }
 
-function token(id, shape, fill, color, frequency) {
-    var route = FRAME_ROUTER[id];
-    var ids = new Array(frequency);
-    for (var i = 0; i < frequency; i++) {
-        ids[i] = id + "," + i.toString();
+function drawToken(token) {
+    var route = FRAME_ROUTER[token.id];
+    var ids = new Array(token.frequency);
+    for (var i = 0; i < token.frequency; i++) {
+        ids[i] = token.id + "," + i.toString();
     }
-    var yOffset = Y_ROUTER[frequency - 1];
+    var yOffset = Y_ROUTER[token.frequency - 1];
     var payload;
-    for (var j = 0; j < frequency; j++) {
-        payload = shape(ids[j], UNIT, route.x, route.y + yOffset[j]);
-        fill(payload.attributes, TOKEN_COLOR[color]);
+    for (var j = 0; j < token.frequency; j++) {
+        payload = SHAPE_ROUTER[token.shape](ids[j], UNIT, route.x,
+                                            route.y + yOffset[j]);
+        FILL_ROUTER[token.fill](payload.attributes, TOKEN_COLOR[token.color]);
         createSvg("canvas", payload);
     }
-    STATE[id] = {
-        token: {
-            shape: shape.name,
-            fill: fill.name,
-            color: color,
-            frequency: frequency,
-        },
+    STATE[token.id] = {
+        token: token,
         reset: function() {
-            for (var i = 0; i < frequency; i++) {
+            for (var i = 0; i < payload.frequency; i++) {
                 document.getElementById(ids[i]).remove();
             }
             delete STATE[id];
@@ -308,37 +319,93 @@ function token(id, shape, fill, color, frequency) {
     };
 }
 
-function background() {
-    frame("0,0", X_LEFT, Y_TOP);
-    frame("0,1", X_LEFT, Y_CENTER);
-    frame("0,2", X_LEFT, Y_BOTTOM);
-    frame("1,0", X_CENTER, Y_TOP);
-    frame("1,1", X_CENTER, Y_CENTER);
-    frame("1,2", X_CENTER, Y_BOTTOM);
-    frame("2,0", X_RIGHT, Y_TOP);
-    frame("2,1", X_RIGHT, Y_CENTER);
-    frame("2,2", X_RIGHT, Y_BOTTOM);
+function drawBackground(callback) {
+    drawFrame(callback, "0,0", X_LEFT, Y_TOP);
+    drawFrame(callback, "0,1", X_LEFT, Y_CENTER);
+    drawFrame(callback, "0,2", X_LEFT, Y_BOTTOM);
+    drawFrame(callback, "1,0", X_CENTER, Y_TOP);
+    drawFrame(callback, "1,1", X_CENTER, Y_CENTER);
+    drawFrame(callback, "1,2", X_CENTER, Y_BOTTOM);
+    drawFrame(callback, "2,0", X_RIGHT, Y_TOP);
+    drawFrame(callback, "2,1", X_RIGHT, Y_CENTER);
+    drawFrame(callback, "2,2", X_RIGHT, Y_BOTTOM);
+}
+
+function drawTokens(tokens) {
+    for (var key in STATE) {
+        STATE[key].reset();
+    }
+    var n = tokens.length;
+    var token;
+    for (var i = 0; i < n; i++) {
+        drawToken(tokens[i]);
+    }
 }
 
 function demo() {
-    background();
-    token("0,0", square, solid, "red", 3);
-    token("0,1", square, transparent, "green", 3);
-    token("0,2", square, empty, "blue", 3);
-    token("1,0", circle, solid, "green", 2);
-    token("1,1", circle, transparent, "blue", 2);
-    token("1,2", circle, empty, "red", 2);
-    token("2,0", triangle, solid, "blue", 1);
-    token("2,1", triangle, transparent, "red", 1);
-    token("2,2", triangle, empty, "green", 1);
-    // STATE["1,0"].reset();
-    // STATE["2,1"].reset();
-    // STATE["0,2"].reset();
-    // token("1,0", circle, solid, "blue", 2);
-    // token("2,1", triangle, transparent, "green", 1);
-    // token("0,2", square, empty, "red", 3);
-    // STATE["1,1"].reset();
-    // STATE["0,2"].reset();
-    // STATE["2,1"].reset();
-    console.log(STATE);
+    drawTokens([
+        {
+            id: "0,0",
+            shape: "square",
+            fill: "solid",
+            color: "red",
+            frequency: 3,
+        },
+        {
+            id: "0,1",
+            shape: "square",
+            fill: "transparent",
+            color: "green",
+            frequency: 3,
+        },
+        {
+            id: "0,2",
+            shape: "square",
+            fill: "empty",
+            color: "blue",
+            frequency: 3,
+        },
+        {
+            id: "1,0",
+            shape: "circle",
+            fill: "solid",
+            color: "green",
+            frequency: 2,
+        },
+        {
+            id: "1,1",
+            shape: "circle",
+            fill: "transparent",
+            color: "blue",
+            frequency: 2,
+        },
+        {
+            id: "1,2",
+            shape: "circle",
+            fill: "empty",
+            color: "red",
+            frequency: 2,
+        },
+        {
+            id: "2,0",
+            shape: "triangle",
+            fill: "solid",
+            color: "blue",
+            frequency: 1,
+        },
+        {
+            id: "2,1",
+            shape: "triangle",
+            fill: "transparent",
+            color: "red",
+            frequency: 1,
+        },
+        {
+            id: "2,2",
+            shape: "triangle",
+            fill: "empty",
+            color: "green",
+            frequency: 1,
+        },
+    ]);
 }

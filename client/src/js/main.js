@@ -8,6 +8,10 @@ function client(handle) {
         console.log("connected");
         var payload = {handle: handle};
         WEBSOCKET.send(JSON.stringify(payload));
+        drawBackground(function(maneuver) {
+            WEBSOCKET.send(JSON.stringify(maneuver));
+        });
+        demo();
     };
     WEBSOCKET.onclose = function() {
         console.log("disconnected");
@@ -67,7 +71,6 @@ function connect() {
 }
 
 window.addEventListener("load", function() {
-    demo();
     NAME.onkeypress = function(event) {
         if (event.keyCode === 13) {
             connect();

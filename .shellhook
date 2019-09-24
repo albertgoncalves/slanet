@@ -34,7 +34,8 @@ gofmts() {
 
 golint() {
     "$GOPATH/bin/golint" "$1" \
-        | sed -n -e '/exported .* should have comment.* or be unexported/!p'
+        | sed -n -e '/exported .* should have comment.* or be unexported/!p' \
+        | sed -n -e '/struct field Id should be ID/!p'
 }
 
 goall() {

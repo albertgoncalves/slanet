@@ -1,6 +1,7 @@
 package server
 
 import (
+    "encoding/json"
     "github.com/gorilla/websocket"
     "log"
     "net"
@@ -13,8 +14,12 @@ type status struct {
     Address uint16 `json:"address"`
 }
 
-type update struct {
-    Content string `json:"content"`
+type maneuver struct {
+    Id        string `json:"id"`
+    Shape     string `json:"shape"`
+    Fill      string `json:"fill"`
+    Color     string `json:"color"`
+    Frequency uint8  `json:"frequency"`
 }
 
 type client struct {
@@ -50,6 +55,11 @@ func logError(parent, child string, err error) {
     )
 }
 
+func pretty(i interface{}) string {
+    s, _ := json.MarshalIndent(i, "", "\t")
+    return string(s)
+}
+
 func socket(w http.ResponseWriter, r *http.Request) {
     conn, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
@@ -64,12 +74,13 @@ func socket(w http.ResponseWriter, r *http.Request) {
     }
     ADD <- client{Conn: conn, Status: s}
     for {
-        u := &update{}
-        if err := conn.ReadJSON(u); err != nil {
+        m := &[]maneuver{}
+        if err := conn.ReadJSON(m); err != nil {
             REMOVE <- conn
             logError("socket(...)", "conn.ReadJSON(u)", err)
             return
         }
+        log.Printf("%s\n", pretty(m))
     }
 }
 
