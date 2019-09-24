@@ -1,24 +1,23 @@
 var N = 3;
 
-var COLOR = {
+var TOKEN_COLOR = {
     red: {
-        solid: "hsl(0, 60%, 60%)",
-        transparent: "hsla(0, 60%, 60%, 28%)",
+        solid: "hsl(350, 50%, 60%)",
+        transparent: "hsla(350, 50%, 60%, 40%)",
     },
     green: {
         solid: "hsl(150, 50%, 55%)",
-        transparent: "hsla(150, 50%, 55%, 28%)",
+        transparent: "hsla(150, 50%, 55%, 40%)",
     },
     blue: {
         solid: "hsl(210, 75%, 55%)",
-        transparent: "hsla(210, 75%, 55%, 28%)",
+        transparent: "hsla(210, 75%, 55%, 40%)",
     },
-    black: {
-        solid: "hsla(0, 0%, 25%, 75%)",
-    },
-    gray: {
-        solid: "hsla(0, 0%, 25%, 25%)",
-    },
+};
+
+var GRAY = {
+    dark: "hsla(0, 0%, 50%, 55%)",
+    light: "hsla(0, 0%, 94%, 100%)",
 };
 
 var STATE = {};
@@ -108,6 +107,8 @@ var Y_ROUTER = [
     [Y_TOKEN_THREE_TOP, Y_TOKEN_THREE_CENTER, Y_TOKEN_THREE_BOTTOM],
 ];
 
+var THICKNESS = "4.5px";
+
 function createSvg(id, payload) {
     var svg =
         document.createElementNS("http://www.w3.org/2000/svg", payload.shape);
@@ -124,11 +125,11 @@ function fill(attributes, color) {
 }
 
 function outline(attributes, color) {
-    fill(attributes, "white");
+    fill(attributes, "none");
     attributes.push("stroke");
     attributes.push(color);
     attributes.push("stroke-width");
-    attributes.push("3.75px");
+    attributes.push(THICKNESS);
 }
 
 function opacity(attributes, alpha) {
@@ -163,6 +164,12 @@ function rectangle(id, width, height, x, y) {
             x,
             "y",
             y,
+            "fill",
+            "white",
+            "stroke",
+            GRAY.light,
+            "stroke-width",
+            THICKNESS,
         ],
     };
 }
@@ -235,29 +242,40 @@ function remove(array, index) {
 
 function frame(id, x, y) {
     var payload = rectangle(id, FRAME_WIDTH, FRAME_HEIGHT, x, y);
-    empty(payload.attributes, COLOR.gray);
     createSvg("canvas", payload);
-    document.getElementById(id).onclick = function(_) {
+    var target = document.getElementById(id);
+    target.addEventListener("mouseenter", function(_) {
+        if (STATE.hasOwnProperty(id)) {
+            target.style.fill = GRAY.light;
+        }
+    });
+    target.addEventListener("mouseleave", function(_) {
+        if (STATE.hasOwnProperty(id)) {
+            target.style.fill = "white";
+        }
+    });
+    target.onclick = function(_) {
         if (!STATE.hasOwnProperty(id)) {
             return;
         }
         for (var i = 0; i < N; i++) {
             if (SELECTION[i] === id) {
-                document.getElementById(id).style.stroke = COLOR.gray.solid;
+                target.style.stroke = GRAY.light;
                 SELECTION = remove(SELECTION, i);
                 return;
             }
         }
+        target.style.stroke = GRAY.dark;
+        SELECTION.push(id);
         var n = SELECTION.length;
-        if (N <= n) {
+        if (n === N) {
+            console.log(SELECTION);
             for (var j = 0; j < n; j++) {
                 document.getElementById(SELECTION[j]).style.stroke =
-                    COLOR.gray.solid;
+                    GRAY.light;
             }
             SELECTION = [];
         }
-        document.getElementById(id).style.stroke = COLOR.black.solid;
-        SELECTION.push(id);
     };
 }
 
@@ -271,7 +289,7 @@ function token(id, shape, fill, color, frequency) {
     var payload;
     for (var j = 0; j < frequency; j++) {
         payload = shape(ids[j], UNIT, route.x, route.y + yOffset[j]);
-        fill(payload.attributes, COLOR[color]);
+        fill(payload.attributes, TOKEN_COLOR[color]);
         createSvg("canvas", payload);
     }
     STATE[id] = {
@@ -313,14 +331,14 @@ function demo() {
     token("2,0", triangle, solid, "blue", 1);
     token("2,1", triangle, transparent, "red", 1);
     token("2,2", triangle, empty, "green", 1);
-    STATE["1,0"].reset();
-    STATE["2,1"].reset();
-    STATE["0,2"].reset();
-    token("1,0", circle, solid, "blue", 2);
-    token("2,1", triangle, transparent, "green", 1);
-    token("0,2", square, empty, "red", 3);
-    STATE["1,1"].reset();
-    STATE["0,2"].reset();
-    STATE["2,1"].reset();
+    // STATE["1,0"].reset();
+    // STATE["2,1"].reset();
+    // STATE["0,2"].reset();
+    // token("1,0", circle, solid, "blue", 2);
+    // token("2,1", triangle, transparent, "green", 1);
+    // token("0,2", square, empty, "red", 3);
+    // STATE["1,1"].reset();
+    // STATE["0,2"].reset();
+    // STATE["2,1"].reset();
     console.log(STATE);
 }
