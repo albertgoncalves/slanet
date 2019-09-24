@@ -119,7 +119,47 @@ var FILL_ROUTER = {
     empty: empty,
 };
 
+var TARGETS = [
+    "0,0",
+    "0,1",
+    "0,2",
+    "1,0",
+    "1,1",
+    "1,2",
+    "2,0",
+    "2,1",
+    "2,2",
+];
+
 var THICKNESS = "4.5px";
+
+function equivalent(a, b) {
+    var aKeys = Object.getOwnPropertyNames(a);
+    var n = aKeys.length;
+    if (n != Object.getOwnPropertyNames(b).length) {
+        return false;
+    }
+    for (var i = 0; i < n; i++) {
+        var key = aKeys[i];
+        if (a[key] !== b[key]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function remove(array, index) {
+    var newArray = new Array(array.length - 1);
+    var offset = 0;
+    for (var i = 0; i < array.length; i++) {
+        if (i !== index) {
+            newArray[i - offset] = array[i];
+        } else {
+            offset += 1;
+        }
+    }
+    return newArray;
+}
 
 function createSvg(id, payload) {
     var svg =
@@ -239,19 +279,6 @@ function triangle(id, unit, x, y) {
     };
 }
 
-function remove(array, index) {
-    var newArray = new Array(array.length - 1);
-    var offset = 0;
-    for (var i = 0; i < array.length; i++) {
-        if (i !== index) {
-            newArray[i - offset] = array[i];
-        } else {
-            offset += 1;
-        }
-    }
-    return newArray;
-}
-
 function drawFrame(callback, id, x, y) {
     var payload = rectangle(id, FRAME_WIDTH, FRAME_HEIGHT, x, y);
     createSvg("canvas", payload);
@@ -294,6 +321,18 @@ function drawFrame(callback, id, x, y) {
     };
 }
 
+function drawFrames(callback) {
+    drawFrame(callback, "0,0", X_LEFT, Y_TOP);
+    drawFrame(callback, "0,1", X_LEFT, Y_CENTER);
+    drawFrame(callback, "0,2", X_LEFT, Y_BOTTOM);
+    drawFrame(callback, "1,0", X_CENTER, Y_TOP);
+    drawFrame(callback, "1,1", X_CENTER, Y_CENTER);
+    drawFrame(callback, "1,2", X_CENTER, Y_BOTTOM);
+    drawFrame(callback, "2,0", X_RIGHT, Y_TOP);
+    drawFrame(callback, "2,1", X_RIGHT, Y_CENTER);
+    drawFrame(callback, "2,2", X_RIGHT, Y_BOTTOM);
+}
+
 function drawToken(token) {
     var route = FRAME_ROUTER[token.id];
     var ids = new Array(token.frequency);
@@ -311,38 +350,73 @@ function drawToken(token) {
     STATE[token.id] = {
         token: token,
         reset: function() {
-            for (var i = 0; i < payload.frequency; i++) {
+            for (var i = 0; i < token.frequency; i++) {
                 document.getElementById(ids[i]).remove();
             }
-            delete STATE[id];
+            delete STATE[token.id];
         }
     };
 }
 
-function drawBackground(callback) {
-    drawFrame(callback, "0,0", X_LEFT, Y_TOP);
-    drawFrame(callback, "0,1", X_LEFT, Y_CENTER);
-    drawFrame(callback, "0,2", X_LEFT, Y_BOTTOM);
-    drawFrame(callback, "1,0", X_CENTER, Y_TOP);
-    drawFrame(callback, "1,1", X_CENTER, Y_CENTER);
-    drawFrame(callback, "1,2", X_CENTER, Y_BOTTOM);
-    drawFrame(callback, "2,0", X_RIGHT, Y_TOP);
-    drawFrame(callback, "2,1", X_RIGHT, Y_CENTER);
-    drawFrame(callback, "2,2", X_RIGHT, Y_BOTTOM);
-}
-
 function drawTokens(tokens) {
-    for (var key in STATE) {
-        STATE[key].reset();
-    }
     var n = tokens.length;
-    var token;
+    var dict = {};
     for (var i = 0; i < n; i++) {
-        drawToken(tokens[i]);
+        dict[tokens[i].id] = tokens[i];
+    }
+    var m = TARGETS.length;
+    var id;
+    for (var j = 0; j < m; j++) {
+        id = TARGETS[j];
+        if (dict.hasOwnProperty(id) && STATE.hasOwnProperty(id)) {
+            if (!equivalent(dict[id], STATE[id].token)) {
+                console.log("redraw " + id);
+                STATE[id].reset();
+                drawToken(dict[id]);
+            } else {
+                console.log("no-op " + id);
+            }
+        } else if (STATE.hasOwnProperty(id)) {
+            console.log("delete " + id);
+            STATE[id].reset();
+        } else if (dict.hasOwnProperty(id)) {
+            console.log("create " + id);
+            drawToken(dict[id]);
+        }
     }
 }
 
 function demo() {
+    drawTokens([
+        {
+            id: "0,0",
+            shape: "square",
+            fill: "solid",
+            color: "red",
+            frequency: 3,
+        },
+        {
+            id: "0,1",
+            shape: "square",
+            fill: "transparent",
+            color: "red",
+            frequency: 3,
+        },
+        {
+            id: "1,0",
+            shape: "circle",
+            fill: "solid",
+            color: "green",
+            frequency: 2,
+        },
+        {
+            id: "2,2",
+            shape: "triangle",
+            fill: "empty",
+            color: "green",
+            frequency: 1,
+        },
+    ]);
     drawTokens([
         {
             id: "0,0",
@@ -398,13 +472,6 @@ function demo() {
             shape: "triangle",
             fill: "transparent",
             color: "red",
-            frequency: 1,
-        },
-        {
-            id: "2,2",
-            shape: "triangle",
-            fill: "empty",
-            color: "green",
             frequency: 1,
         },
     ]);

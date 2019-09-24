@@ -8,7 +8,7 @@ function client(handle) {
         console.log("connected");
         var payload = {handle: handle};
         WEBSOCKET.send(JSON.stringify(payload));
-        drawBackground(function(maneuver) {
+        drawFrames(function(maneuver) {
             WEBSOCKET.send(JSON.stringify(maneuver));
         });
         demo();
