@@ -3,15 +3,15 @@ var N = 3;
 var COLOR = {
     red: {
         solid: "hsl(0, 60%, 60%)",
-        transparent: "hsla(0, 60%, 60%, 35%)",
+        transparent: "hsla(0, 60%, 60%, 28%)",
     },
     green: {
         solid: "hsl(150, 50%, 55%)",
-        transparent: "hsla(150, 50%, 55%, 35%)",
+        transparent: "hsla(150, 50%, 55%, 28%)",
     },
     blue: {
         solid: "hsl(210, 75%, 55%)",
-        transparent: "hsla(210, 75%, 55%, 35%)",
+        transparent: "hsla(210, 75%, 55%, 28%)",
     },
     black: {
         solid: "hsla(0, 0%, 25%, 75%)",
@@ -22,7 +22,7 @@ var COLOR = {
 };
 
 var STATE = {};
-var SELECTED = [];
+var SELECTION = [];
 
 var FIGURE = document.getElementById("figure");
 
@@ -112,24 +112,28 @@ function createSvg(id, payload) {
     var svg =
         document.createElementNS("http://www.w3.org/2000/svg", payload.shape);
     var n = payload.attributes.length;
-    for (var i = 0; i < n; i++) {
-        svg.setAttribute(payload.attributes[i][0], payload.attributes[i][1]);
+    for (var i = 0; i < n; i += 2) {
+        svg.setAttribute(payload.attributes[i], payload.attributes[i + 1]);
     }
     document.getElementById(id).appendChild(svg);
 }
 
 function fill(attributes, color) {
-    attributes.push(["fill", color]);
+    attributes.push("fill");
+    attributes.push(color);
 }
 
 function outline(attributes, color) {
     fill(attributes, "white");
-    attributes.push(["stroke", color]);
-    attributes.push(["stroke-width", "3.75px"]);
+    attributes.push("stroke");
+    attributes.push(color);
+    attributes.push("stroke-width");
+    attributes.push("3.75px");
 }
 
 function opacity(attributes, alpha) {
-    attributes.push(["opacity", alpha]);
+    attributes.push("opacity");
+    attributes.push(alpha);
 }
 
 function solid(attributes, color) {
@@ -149,11 +153,16 @@ function rectangle(id, width, height, x, y) {
     return {
         shape: "rect",
         attributes: [
-            ["id", id],
-            ["width", width],
-            ["height", height],
-            ["x", x],
-            ["y", y],
+            "id",
+            id,
+            "width",
+            width,
+            "height",
+            height,
+            "x",
+            x,
+            "y",
+            y,
         ],
     };
 }
@@ -162,12 +171,18 @@ function square(id, unit, x, y) {
     return {
         shape: "rect",
         attributes: [
-            ["id", id],
-            ["width", unit],
-            ["height", unit],
-            ["x", x],
-            ["y", y],
-            ["pointer-events", "none"],
+            "id",
+            id,
+            "width",
+            unit,
+            "height",
+            unit,
+            "x",
+            x,
+            "y",
+            y,
+            "pointer-events",
+            "none",
         ],
     };
 }
@@ -177,11 +192,16 @@ function circle(id, diameter, x, y) {
     return {
         shape: "circle",
         attributes: [
-            ["id", id],
-            ["r", radius],
-            ["cx", x + radius],
-            ["cy", y + radius],
-            ["pointer-events", "none"],
+            "id",
+            id,
+            "r",
+            radius,
+            "cx",
+            x + radius,
+            "cy",
+            y + radius,
+            "pointer-events",
+            "none",
         ],
     };
 }
@@ -190,9 +210,12 @@ function triangle(id, unit, x, y) {
     return {
         shape: "polygon",
         attributes: [
-            ["id", id],
-            ["points", [x, y + unit, x + unit, y + unit, x + (unit / 2), y]],
-            ["pointer-events", "none"],
+            "id",
+            id,
+            "points",
+            [x, y + unit, x + unit, y + unit, x + (unit / 2), y],
+            "pointer-events",
+            "none",
         ],
     };
 }
@@ -219,19 +242,22 @@ function frame(id, x, y) {
             return;
         }
         for (var i = 0; i < N; i++) {
-            if (SELECTED[i] === id) {
+            if (SELECTION[i] === id) {
                 document.getElementById(id).style.stroke = COLOR.gray.solid;
-                SELECTED = remove(SELECTED, i);
+                SELECTION = remove(SELECTION, i);
                 return;
             }
         }
-        if (N <= SELECTED.length) {
-            document.getElementById(SELECTED[0]).style.stroke =
-                COLOR.gray.solid;
-            SELECTED = remove(SELECTED, 0);
+        var n = SELECTION.length;
+        if (N <= n) {
+            for (var j = 0; j < n; j++) {
+                document.getElementById(SELECTION[j]).style.stroke =
+                    COLOR.gray.solid;
+            }
+            SELECTION = [];
         }
         document.getElementById(id).style.stroke = COLOR.black.solid;
-        SELECTED.push(id);
+        SELECTION.push(id);
     };
 }
 
@@ -293,5 +319,8 @@ function demo() {
     token("1,0", circle, solid, "blue", 2);
     token("2,1", triangle, transparent, "green", 1);
     token("0,2", square, empty, "red", 3);
+    STATE["1,1"].reset();
+    STATE["0,2"].reset();
+    STATE["2,1"].reset();
     console.log(STATE);
 }

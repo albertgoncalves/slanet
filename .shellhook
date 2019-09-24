@@ -66,8 +66,10 @@ export -f goall
 export -f govets
 
 if [ ! -f "$WD/.jsinit" ]; then
+    cd "$JSPATH"
     npm install --save-dev jshint
     touch "$WD/.jsinit"
+    cd "$WD"
 fi
 
 export HTML_TIDY=$JSPATH/.tidyrc
