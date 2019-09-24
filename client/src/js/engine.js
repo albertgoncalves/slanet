@@ -21,7 +21,7 @@ var GRAY = {
 };
 
 var STATE = {};
-var SELECTION = [];
+var MANEUVER = [];
 
 var FIGURE = document.getElementById("figure");
 
@@ -270,26 +270,26 @@ function drawFrame(callback, id, x, y) {
         if (!STATE.hasOwnProperty(id)) {
             return;
         }
-        var n = SELECTION.length;
+        var n = MANEUVER.length;
         if (0 < n) {
             for (var i = 0; i < n; i++) {
-                if (SELECTION[i].id === id) {
+                if (MANEUVER[i].id === id) {
                     target.style.stroke = GRAY.light;
-                    SELECTION = remove(SELECTION, i);
+                    MANEUVER = remove(MANEUVER, i);
                     return;
                 }
             }
         }
         target.style.stroke = GRAY.dark;
-        SELECTION.push(STATE[id].token);
-        n = SELECTION.length;
+        MANEUVER.push(STATE[id].token);
+        n = MANEUVER.length;
         if (N <= n) {
-            callback(SELECTION);
+            callback(MANEUVER);
             for (var j = 0; j < n; j++) {
-                document.getElementById(SELECTION[j].id).style.stroke =
+                document.getElementById(MANEUVER[j].id).style.stroke =
                     GRAY.light;
             }
-            SELECTION = [];
+            MANEUVER = [];
         }
     };
 }
