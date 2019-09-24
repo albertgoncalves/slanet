@@ -133,6 +133,19 @@ var TARGETS = [
 
 var THICKNESS = "4.5px";
 
+function remove(array, index) {
+    var newArray = new Array(array.length - 1);
+    var offset = 0;
+    for (var i = 0; i < array.length; i++) {
+        if (i !== index) {
+            newArray[i - offset] = array[i];
+        } else {
+            offset += 1;
+        }
+    }
+    return newArray;
+}
+
 function equivalent(a, b) {
     var aKeys = Object.getOwnPropertyNames(a);
     var n = aKeys.length;
@@ -146,19 +159,6 @@ function equivalent(a, b) {
         }
     }
     return true;
-}
-
-function remove(array, index) {
-    var newArray = new Array(array.length - 1);
-    var offset = 0;
-    for (var i = 0; i < array.length; i++) {
-        if (i !== index) {
-            newArray[i - offset] = array[i];
-        } else {
-            offset += 1;
-        }
-    }
-    return newArray;
 }
 
 function createSvg(id, payload) {
@@ -360,28 +360,28 @@ function drawToken(token) {
 
 function drawTokens(tokens) {
     var n = tokens.length;
-    var dict = {};
+    var successor = {};
     for (var i = 0; i < n; i++) {
-        dict[tokens[i].id] = tokens[i];
+        successor[tokens[i].id] = tokens[i];
     }
     var m = TARGETS.length;
     var id;
     for (var j = 0; j < m; j++) {
         id = TARGETS[j];
-        if (dict.hasOwnProperty(id) && STATE.hasOwnProperty(id)) {
-            if (!equivalent(dict[id], STATE[id].token)) {
+        if (STATE.hasOwnProperty(id) && successor.hasOwnProperty(id)) {
+            if (!equivalent(STATE[id].token, successor[id])) {
                 console.log("redraw " + id);
                 STATE[id].reset();
-                drawToken(dict[id]);
+                drawToken(successor[id]);
             } else {
                 console.log("no-op " + id);
             }
         } else if (STATE.hasOwnProperty(id)) {
             console.log("delete " + id);
             STATE[id].reset();
-        } else if (dict.hasOwnProperty(id)) {
+        } else if (successor.hasOwnProperty(id)) {
             console.log("create " + id);
-            drawToken(dict[id]);
+            drawToken(successor[id]);
         }
     }
 }
