@@ -1,4 +1,19 @@
 var N = 3;
+var M = 9;
+
+var TARGETS = [
+    "0,0",
+    "0,1",
+    "0,2",
+    "1,0",
+    "1,1",
+    "1,2",
+    "2,0",
+    "2,1",
+    "2,2",
+];
+
+var THICKNESS = "4.5px";
 
 var TOKEN_COLOR = {
     red: {
@@ -16,8 +31,8 @@ var TOKEN_COLOR = {
 };
 
 var GRAY = {
-    dark: "hsla(0, 0%, 50%, 55%)",
-    light: "hsla(0, 0%, 94%, 100%)",
+    dark: "hsla(0, 0%, 65%, 55%)",
+    light: "hsla(0, 0%, 95%, 100%)",
 };
 
 var STATE = {};
@@ -119,24 +134,11 @@ var FILL_ROUTER = {
     empty: empty,
 };
 
-var TARGETS = [
-    "0,0",
-    "0,1",
-    "0,2",
-    "1,0",
-    "1,1",
-    "1,2",
-    "2,0",
-    "2,1",
-    "2,2",
-];
-
-var THICKNESS = "4.5px";
-
 function remove(array, index) {
     var newArray = new Array(array.length - 1);
     var offset = 0;
-    for (var i = 0; i < array.length; i++) {
+    var n = array.length;
+    for (var i = 0; i < n; i++) {
         if (i !== index) {
             newArray[i - offset] = array[i];
         } else {
@@ -364,9 +366,8 @@ function drawTokens(tokens) {
     for (var i = 0; i < n; i++) {
         successor[tokens[i].id] = tokens[i];
     }
-    var m = TARGETS.length;
     var id;
-    for (var j = 0; j < m; j++) {
+    for (var j = 0; j < M; j++) {
         id = TARGETS[j];
         if (STATE.hasOwnProperty(id) && successor.hasOwnProperty(id)) {
             if (!equivalent(STATE[id].token, successor[id])) {
