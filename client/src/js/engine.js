@@ -364,11 +364,14 @@ function drawTokens(tokens) {
     var n = tokens.length;
     var successor = {};
     for (var i = 0; i < n; i++) {
-        successor[tokens[i].id] = tokens[i];
+        if (tokens[i] != null) {
+            successor[tokens[i].id] = tokens[i];
+        }
     }
     var id;
     for (var j = 0; j < M; j++) {
         id = TARGETS[j];
+        document.getElementById(id).style.fill = "white";
         if (STATE.hasOwnProperty(id) && successor.hasOwnProperty(id)) {
             if (!equivalent(STATE[id].token, successor[id])) {
                 STATE[id].reset();

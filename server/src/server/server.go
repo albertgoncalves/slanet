@@ -1,7 +1,7 @@
 package server
 
 import (
-    "combo"
+    "set"
     "encoding/json"
     "github.com/gorilla/websocket"
     "log"
@@ -22,24 +22,25 @@ type client struct {
 
 type ledger struct {
     Players []*status      `json:"players"`
-    Tokens  []*combo.Token `json:"tokens"`
+    Tokens  []*set.Token `json:"tokens"`
 }
 
 var MEMO = make(chan client)
 var REMOVE = make(chan *websocket.Conn)
 var CLIENTS = make(map[*websocket.Conn]*status)
-var DEPLETE = make(chan []*combo.Token)
+var DEPLETE = make(chan []*set.Token)
 
-var TOKENS = func() []*combo.Token {
-    combo.ShuffleTokens()
-    tokens, _ := combo.Init()
+var TOKENS = func() []*set.Token {
+    set.ShuffleTokens()
+    set.ALL_TOKENS = set.ALL_TOKENS
+    tokens, _ := set.Init()
     for {
-        if combo.AnySolution(tokens) {
+        if set.AnySolution(tokens) {
             return tokens
         }
-        combo.ALL_TOKENS = combo.AllTokens()
-        combo.ShuffleTokens()
-        tokens, _ = combo.Init()
+        set.ALL_TOKENS = set.AllTokens()
+        set.ShuffleTokens()
+        tokens, _ = set.Init()
     }
 }()
 
@@ -86,13 +87,13 @@ func socket(w http.ResponseWriter, r *http.Request) {
     }
     MEMO <- client{Conn: conn, Status: s}
     for {
-        tokens := &[]*combo.Token{}
+        tokens := &[]*set.Token{}
         if err := conn.ReadJSON(tokens); err != nil {
             REMOVE <- conn
             logError("socket(...)", "conn.ReadJSON(u)", err)
             return
         }
-        if combo.Validate(*tokens) {
+        if set.Validate(*tokens) {
             s.Score++
             MEMO <- client{Conn: conn, Status: s}
             DEPLETE <- *tokens
@@ -100,7 +101,7 @@ func socket(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func broadcast() {
+func relay() {
     for {
         select {
         case client := <-MEMO:
@@ -109,18 +110,32 @@ func broadcast() {
             delete(CLIENTS, conn)
         case tokens := <-DEPLETE:
             for _, token := range tokens {
-                replacement, err := combo.Pop()
+                index, err := set.Lookup(token.Id)
                 if err != nil {
                     break
                 }
-                index, err := combo.Lookup(token.Id)
+                replacement, err := set.Pop()
                 if err != nil {
-                    break
+                    TOKENS[index] = nil
+                } else {
+                    TOKENS[index] = replacement
+                    TOKENS[index].Id = token.Id
                 }
-                TOKENS[index] = replacement
-                TOKENS[index].Id = token.Id
+            }
+            for !set.AnySolution(TOKENS) {
+                if len(set.ALL_TOKENS) < 1 {
+                    set.ALL_TOKENS = set.AllTokens()
+                    set.ShuffleTokens()
+                } else {
+                    for _, token := range TOKENS {
+                        set.ALL_TOKENS = append(set.ALL_TOKENS, token)
+                    }
+                }
+                TOKENS, _ = set.Init()
             }
         }
+        log.Println(len(TOKENS))
+        log.Println(len(set.ALL_TOKENS))
         var players = make([]*status, len(CLIENTS))
         i := 0
         for _, p := range CLIENTS {
@@ -133,7 +148,7 @@ func broadcast() {
         }
         for conn := range CLIENTS {
             if err := conn.WriteJSON(payload); err != nil {
-                logError("broadcast()", "conn.WriteJSON(players)", err)
+                logError("relay()", "conn.WriteJSON(players)", err)
             }
         }
     }
@@ -143,6 +158,6 @@ func Run(directory, port string) error {
     log.Printf("\n\tlistening on http://localhost%s/\n\n", port)
     http.HandleFunc("/ws", socket)
     http.Handle("/", http.FileServer(http.Dir(directory)))
-    go broadcast()
+    go relay()
     return http.ListenAndServe(port, nil)
 }
