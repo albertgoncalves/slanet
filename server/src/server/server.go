@@ -60,8 +60,10 @@ var LOOKUP = func() map[string]int {
     return lookup
 }()
 
-const BOLD = "\033[1m"
-const END = "\033[0m"
+const (
+    BOLD = "\033[1m"
+    END  = "\033[0m"
+)
 
 func address(conn *websocket.Conn) uint16 {
     return uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
@@ -120,58 +122,64 @@ func relay() {
     for {
         select {
         case client := <-MEMO:
-            CLIENTS[client.Conn] = client.Status
-        case conn := <-REMOVE:
-            delete(CLIENTS, conn)
-        case tokens := <-ADVANCE:
-            for _, token := range tokens {
-                index, ok := LOOKUP[token.Id]
-                if !ok {
-                    log.Fatal(fmtError(
-                        "relay",
-                        "<-ADVANCE",
-                        fmt.Errorf("LOOKUP[%s]", token.Id),
-                    ))
-                }
-                replacement, err := set.Pop()
-                if err != nil {
-                    TOKENS[index] = nil
-                } else {
-                    TOKENS[index] = replacement
-                    TOKENS[index].Id = token.Id
-                }
+            {
+                CLIENTS[client.Conn] = client.Status
             }
-            log.Println("Searching TOKENS")
-            for !set.AnySolution(TOKENS) {
-                log.Println("No solutions found in TOKENS")
-                if len(set.ALL_TOKENS) < 1 {
-                    log.Println("len(set.ALL_TOKENS) < 1")
-                    restart()
-                } else {
-                    for _, token := range TOKENS {
-                        if token == nil {
-                            log.Fatal(fmtError(
-                                "relay",
-                                "<-ADVANCE",
-                                fmt.Errorf("token == nil"),
-                            ))
-                        }
-                        set.ALL_TOKENS = append(set.ALL_TOKENS, token)
+        case conn := <-REMOVE:
+            {
+                delete(CLIENTS, conn)
+            }
+        case tokens := <-ADVANCE:
+            {
+                for _, token := range tokens {
+                    index, ok := LOOKUP[token.Id]
+                    if !ok {
+                        log.Fatal(fmtError(
+                            "relay",
+                            "<-ADVANCE",
+                            fmt.Errorf("LOOKUP[%s]", token.Id),
+                        ))
                     }
-                    log.Printf(
-                        "Searching ALL_TOKENS, len(ALL_TOKENS) = %d\n",
-                        len(set.ALL_TOKENS),
-                    )
-                    if !set.AnySolution(set.ALL_TOKENS) {
-                        log.Println("No solutions found in ALL_TOKENS")
-                        restart()
+                    replacement, err := set.Pop()
+                    if err != nil {
+                        TOKENS[index] = nil
+                    } else {
+                        TOKENS[index] = replacement
+                        TOKENS[index].Id = token.Id
                     }
                 }
-                set.Shuffle()
-                var err error
-                TOKENS, err = set.Init()
-                if err != nil {
-                    log.Fatal(fmtError("relay", "<-ADVANCE", err))
+                log.Println("Searching TOKENS")
+                for !set.AnySolution(TOKENS) {
+                    log.Println("No solutions found in TOKENS")
+                    if len(set.ALL_TOKENS) < 1 {
+                        log.Println("len(set.ALL_TOKENS) < 1")
+                        restart()
+                    } else {
+                        for _, token := range TOKENS {
+                            if token == nil {
+                                log.Fatal(fmtError(
+                                    "relay",
+                                    "<-ADVANCE",
+                                    fmt.Errorf("token == nil"),
+                                ))
+                            }
+                            set.ALL_TOKENS = append(set.ALL_TOKENS, token)
+                        }
+                        log.Printf(
+                            "Searching ALL_TOKENS, len(ALL_TOKENS) = %d\n",
+                            len(set.ALL_TOKENS),
+                        )
+                        if !set.AnySolution(set.ALL_TOKENS) {
+                            log.Println("No solutions found in ALL_TOKENS")
+                            restart()
+                        }
+                    }
+                    set.Shuffle()
+                    var err error
+                    TOKENS, err = set.Init()
+                    if err != nil {
+                        log.Fatal(fmtError("relay", "<-ADVANCE", err))
+                    }
                 }
             }
         }
