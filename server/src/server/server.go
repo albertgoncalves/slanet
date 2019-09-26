@@ -1,12 +1,12 @@
 package server
 
 import (
-    "set"
     "encoding/json"
     "github.com/gorilla/websocket"
     "log"
     "net"
     "net/http"
+    "set"
 )
 
 type status struct {
@@ -21,7 +21,7 @@ type client struct {
 }
 
 type ledger struct {
-    Players []*status      `json:"players"`
+    Players []*status    `json:"players"`
     Tokens  []*set.Token `json:"tokens"`
 }
 
@@ -32,7 +32,6 @@ var DEPLETE = make(chan []*set.Token)
 
 var TOKENS = func() []*set.Token {
     set.ShuffleTokens()
-    set.ALL_TOKENS = set.ALL_TOKENS
     tokens, _ := set.Init()
     for {
         if set.AnySolution(tokens) {
@@ -101,6 +100,10 @@ func socket(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+func restart() {
+    set.ALL_TOKENS = set.AllTokens()
+}
+
 func relay() {
     for {
         select {
@@ -123,19 +126,25 @@ func relay() {
                 }
             }
             for !set.AnySolution(TOKENS) {
+                log.Println("No solutions found in TOKENS")
                 if len(set.ALL_TOKENS) < 1 {
-                    set.ALL_TOKENS = set.AllTokens()
-                    set.ShuffleTokens()
+                    log.Println("len(set.ALL_TOKENS) < 1")
+                    restart()
                 } else {
                     for _, token := range TOKENS {
-                        set.ALL_TOKENS = append(set.ALL_TOKENS, token)
+                        if token != nil {
+                            set.ALL_TOKENS = append(set.ALL_TOKENS, token)
+                        }
+                    }
+                    if !set.AnySolution(set.ALL_TOKENS) {
+                        log.Println("No solutions found in ALL_TOKENS")
+                        restart()
                     }
                 }
+                set.ShuffleTokens()
                 TOKENS, _ = set.Init()
             }
         }
-        log.Println(len(TOKENS))
-        log.Println(len(set.ALL_TOKENS))
         var players = make([]*status, len(CLIENTS))
         i := 0
         for _, p := range CLIENTS {
