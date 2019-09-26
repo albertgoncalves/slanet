@@ -74,7 +74,7 @@ func TestCombinations(t *testing.T) {
 
 func BenchmarkCombinations(b *testing.B) {
     for i := 0; i < b.N; i++ {
-        combinations(9)
+        combinations(78)
     }
 }
 

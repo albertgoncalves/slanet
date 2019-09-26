@@ -1,7 +1,7 @@
 package server
 
 import (
-    "encoding/json"
+    "fmt"
     "github.com/gorilla/websocket"
     "log"
     "net"
@@ -28,19 +28,36 @@ type ledger struct {
 var MEMO = make(chan client)
 var REMOVE = make(chan *websocket.Conn)
 var CLIENTS = make(map[*websocket.Conn]*status)
-var DEPLETE = make(chan []*set.Token)
+var ADVANCE = make(chan []*set.Token)
 
 var TOKENS = func() []*set.Token {
-    set.ShuffleTokens()
-    tokens, _ := set.Init()
+    set.Shuffle()
+    tokens, err := set.Init()
+    if err != nil {
+        log.Fatal(err)
+    }
     for {
         if set.AnySolution(tokens) {
             return tokens
         }
         set.ALL_TOKENS = set.AllTokens()
-        set.ShuffleTokens()
+        set.Shuffle()
         tokens, _ = set.Init()
     }
+}()
+
+var LOOKUP = func() map[string]int {
+    lookup := make(map[string]int)
+    lookup["0,0"] = 0
+    lookup["0,1"] = 1
+    lookup["0,2"] = 2
+    lookup["1,0"] = 3
+    lookup["1,1"] = 4
+    lookup["1,2"] = 5
+    lookup["2,0"] = 6
+    lookup["2,1"] = 7
+    lookup["2,2"] = 8
+    return lookup
 }()
 
 const BOLD = "\033[1m"
@@ -56,8 +73,8 @@ var upgrader = websocket.Upgrader{
     CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-func logError(parent, child string, err error) {
-    log.Printf(
+func fmtError(parent, child string, err error) string {
+    return fmt.Sprintf(
         "\n\t%s%#v%s\n\t@ { %s { %s } }\n\n",
         BOLD,
         err,
@@ -67,21 +84,16 @@ func logError(parent, child string, err error) {
     )
 }
 
-func pretty(i interface{}) string {
-    s, _ := json.MarshalIndent(i, "", "\t")
-    return string(s)
-}
-
 func socket(w http.ResponseWriter, r *http.Request) {
     conn, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
-        logError("socket(...)", "upgrader.Upgrade(w, r, nil)", err)
+        log.Print(fmtError("socket(...)", "upgrader.Upgrade(w, r, nil)", err))
         return
     }
     defer conn.Close()
     s := &status{Score: 0, Address: address(conn)}
     if err := conn.ReadJSON(s); err != nil {
-        logError("socket(...)", "conn.ReadJSON(s)", err)
+        log.Print(fmtError("socket(...)", "conn.ReadJSON(s)", err))
         return
     }
     MEMO <- client{Conn: conn, Status: s}
@@ -89,13 +101,13 @@ func socket(w http.ResponseWriter, r *http.Request) {
         tokens := &[]*set.Token{}
         if err := conn.ReadJSON(tokens); err != nil {
             REMOVE <- conn
-            logError("socket(...)", "conn.ReadJSON(u)", err)
+            log.Print(fmtError("socket(...)", "conn.ReadJSON(u)", err))
             return
         }
         if set.Validate(*tokens) {
             s.Score++
             MEMO <- client{Conn: conn, Status: s}
-            DEPLETE <- *tokens
+            ADVANCE <- *tokens
         }
     }
 }
@@ -111,11 +123,15 @@ func relay() {
             CLIENTS[client.Conn] = client.Status
         case conn := <-REMOVE:
             delete(CLIENTS, conn)
-        case tokens := <-DEPLETE:
+        case tokens := <-ADVANCE:
             for _, token := range tokens {
-                index, err := set.Lookup(token.Id)
-                if err != nil {
-                    break
+                index, ok := LOOKUP[token.Id]
+                if !ok {
+                    log.Fatal(fmtError(
+                        "relay",
+                        "<-ADVANCE",
+                        fmt.Errorf("LOOKUP[%s]", token.Id),
+                    ))
                 }
                 replacement, err := set.Pop()
                 if err != nil {
@@ -125,6 +141,7 @@ func relay() {
                     TOKENS[index].Id = token.Id
                 }
             }
+            log.Println("Searching TOKENS")
             for !set.AnySolution(TOKENS) {
                 log.Println("No solutions found in TOKENS")
                 if len(set.ALL_TOKENS) < 1 {
@@ -132,17 +149,30 @@ func relay() {
                     restart()
                 } else {
                     for _, token := range TOKENS {
-                        if token != nil {
-                            set.ALL_TOKENS = append(set.ALL_TOKENS, token)
+                        if token == nil {
+                            log.Fatal(fmtError(
+                                "relay",
+                                "<-ADVANCE",
+                                fmt.Errorf("token == nil"),
+                            ))
                         }
+                        set.ALL_TOKENS = append(set.ALL_TOKENS, token)
                     }
+                    log.Printf(
+                        "Searching ALL_TOKENS, len(ALL_TOKENS) = %d\n",
+                        len(set.ALL_TOKENS),
+                    )
                     if !set.AnySolution(set.ALL_TOKENS) {
                         log.Println("No solutions found in ALL_TOKENS")
                         restart()
                     }
                 }
-                set.ShuffleTokens()
-                TOKENS, _ = set.Init()
+                set.Shuffle()
+                var err error
+                TOKENS, err = set.Init()
+                if err != nil {
+                    log.Fatal(fmtError("relay", "<-ADVANCE", err))
+                }
             }
         }
         var players = make([]*status, len(CLIENTS))
@@ -157,7 +187,7 @@ func relay() {
         }
         for conn := range CLIENTS {
             if err := conn.WriteJSON(payload); err != nil {
-                logError("relay()", "conn.WriteJSON(players)", err)
+                log.Print(fmtError("relay()", "conn.WriteJSON(players)", err))
             }
         }
     }

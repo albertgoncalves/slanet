@@ -1,6 +1,7 @@
 package set
 
 import (
+    "encoding/json"
     "fmt"
     "math/rand"
     "time"
@@ -92,7 +93,7 @@ func AllTokens() []*Token {
 
 var ALL_TOKENS []*Token = AllTokens()
 
-func ShuffleTokens() {
+func Shuffle() {
     rand.Seed(time.Now().UnixNano())
     rand.Shuffle(len(ALL_TOKENS), func(i, j int) {
         ALL_TOKENS[i], ALL_TOKENS[j] = ALL_TOKENS[j], ALL_TOKENS[i]
@@ -144,6 +145,11 @@ func Validate(tokens []*Token) bool {
         compareUint8(first.Frequency, second.Frequency, third.Frequency)
 }
 
+func pretty(i interface{}) string {
+    s, _ := json.MarshalIndent(i, "", "\t")
+    return string(s)
+}
+
 func AnySolution(tokens []*Token) bool {
     for _, indices := range combinations(len(tokens)) {
         if Validate([]*Token{
@@ -151,43 +157,11 @@ func AnySolution(tokens []*Token) bool {
             tokens[indices[1]],
             tokens[indices[2]],
         }) {
-            fmt.Println(
-                tokens[indices[0]],
-                tokens[indices[1]],
-                tokens[indices[2]],
-            )
+            fmt.Printf("SOLUTION\n%s\n", pretty(tokens[indices[0]]))
+            fmt.Printf("%s\n", pretty(tokens[indices[1]]))
+            fmt.Printf("%s\n\n", pretty(tokens[indices[2]]))
             return true
         }
     }
     return false
-}
-
-func Remove(tokens []*Token, i int) []*Token {
-    newTokens := make([]*Token, 0, len(tokens)-1)
-    newTokens = append(newTokens, tokens[:i]...)
-    return append(newTokens, tokens[i+1:]...)
-}
-
-func Lookup(index string) (int, error) {
-    switch index {
-    case "0,0":
-        return 0, nil
-    case "0,1":
-        return 1, nil
-    case "0,2":
-        return 2, nil
-    case "1,0":
-        return 3, nil
-    case "1,1":
-        return 4, nil
-    case "1,2":
-        return 5, nil
-    case "2,0":
-        return 6, nil
-    case "2,1":
-        return 7, nil
-    case "2,2":
-        return 8, nil
-    }
-    return 0, fmt.Errorf("Lookup(%s)", index)
 }
