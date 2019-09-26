@@ -4,7 +4,7 @@
 !.shellhook
 !src/
 !server/
-!combo/
+!set/
 !*.go
 !client/
 !js/
