@@ -35,7 +35,8 @@ gofmts() {
 golint() {
     "$GOPATH/bin/golint" "$1" \
         | sed -n -e '/exported .* should have comment.* or be unexported/!p' \
-        | sed -n -e '/struct field Id should be ID/!p'
+        | sed -n -e '/struct field Id should be ID/!p' \
+        | sed -n -e "/don't use ALL_CAPS in Go names; use CamelCase/!p"
 }
 
 goall() {
@@ -67,10 +68,10 @@ export -f goall
 export -f govets
 
 if [ ! -f "$WD/.jsinit" ]; then
-    cd "$JSPATH"
+    cd "$JSPATH" || exit
     npm install --save-dev jshint
     touch "$WD/.jsinit"
-    cd "$WD"
+    cd "$WD" || exit
 fi
 
 export HTML_TIDY=$JSPATH/.tidyrc
@@ -88,4 +89,4 @@ jsfmts () {
 }
 
 export -f jsfmts
-alias jshint="$JSPATH/node_modules/jshint/bin/jshint"
+alias jshint='$JSPATH/node_modules/jshint/bin/jshint'

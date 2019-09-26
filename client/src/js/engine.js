@@ -371,109 +371,13 @@ function drawTokens(tokens) {
         id = TARGETS[j];
         if (STATE.hasOwnProperty(id) && successor.hasOwnProperty(id)) {
             if (!equivalent(STATE[id].token, successor[id])) {
-                console.log("redraw " + id);
                 STATE[id].reset();
                 drawToken(successor[id]);
-            } else {
-                console.log("no-op " + id);
             }
         } else if (STATE.hasOwnProperty(id)) {
-            console.log("delete " + id);
             STATE[id].reset();
         } else if (successor.hasOwnProperty(id)) {
-            console.log("create " + id);
             drawToken(successor[id]);
         }
     }
-}
-
-function demo() {
-    drawTokens([
-        {
-            id: "0,0",
-            shape: "square",
-            fill: "solid",
-            color: "red",
-            frequency: 3,
-        },
-        {
-            id: "0,1",
-            shape: "square",
-            fill: "transparent",
-            color: "red",
-            frequency: 3,
-        },
-        {
-            id: "1,0",
-            shape: "circle",
-            fill: "solid",
-            color: "green",
-            frequency: 2,
-        },
-        {
-            id: "2,2",
-            shape: "triangle",
-            fill: "empty",
-            color: "green",
-            frequency: 1,
-        },
-    ]);
-    drawTokens([
-        {
-            id: "0,0",
-            shape: "square",
-            fill: "solid",
-            color: "red",
-            frequency: 3,
-        },
-        {
-            id: "0,1",
-            shape: "square",
-            fill: "transparent",
-            color: "green",
-            frequency: 3,
-        },
-        {
-            id: "0,2",
-            shape: "square",
-            fill: "empty",
-            color: "blue",
-            frequency: 3,
-        },
-        {
-            id: "1,0",
-            shape: "circle",
-            fill: "solid",
-            color: "green",
-            frequency: 2,
-        },
-        {
-            id: "1,1",
-            shape: "circle",
-            fill: "transparent",
-            color: "blue",
-            frequency: 2,
-        },
-        {
-            id: "1,2",
-            shape: "circle",
-            fill: "empty",
-            color: "red",
-            frequency: 2,
-        },
-        {
-            id: "2,0",
-            shape: "triangle",
-            fill: "solid",
-            color: "blue",
-            frequency: 1,
-        },
-        {
-            id: "2,1",
-            shape: "triangle",
-            fill: "transparent",
-            color: "red",
-            frequency: 1,
-        },
-    ]);
 }

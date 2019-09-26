@@ -77,3 +77,136 @@ func BenchmarkCombinations(b *testing.B) {
         combinations(9)
     }
 }
+
+func TestAllTokens(t *testing.T) {
+    var tokens []*Token = AllTokens()
+    if len(tokens) != 81 {
+        t.Error("len(AllTokens())")
+    }
+    if (*tokens[0] != Token{
+        Shape:     "square",
+        Fill:      "solid",
+        Color:     "green",
+        Frequency: 1,
+    }) {
+        t.Error("AllTokens()[0]")
+    }
+    if (*tokens[1] != Token{
+        Shape:     "square",
+        Fill:      "solid",
+        Color:     "green",
+        Frequency: 2,
+    }) {
+        t.Error("AllTokens()[1]")
+    }
+    if (*tokens[len(tokens)-2] != Token{
+        Shape:     "triangle",
+        Fill:      "empty",
+        Color:     "blue",
+        Frequency: 2,
+    }) {
+        t.Error("AllTokens()[len(AllTokens()) - 2]")
+    }
+    if (*tokens[len(tokens)-1] != Token{
+        Shape:     "triangle",
+        Fill:      "empty",
+        Color:     "blue",
+        Frequency: 3,
+    }) {
+        t.Error("AllTokens()[len(AllTokens()) - 1]")
+    }
+}
+
+func TestPop(t *testing.T) {
+    expected := Token{
+        Shape:     "square",
+        Fill:      "solid",
+        Color:     "green",
+        Frequency: 1,
+    }
+    if token, err := Pop(); (err != nil) || (*token != expected) ||
+        (len(ALL_TOKENS) != 80) {
+        t.Error("Pop()")
+    }
+    ALL_TOKENS = []*Token{}
+    if _, err := Pop(); err == nil {
+        t.Error("Pop()")
+    }
+    ALL_TOKENS = AllTokens()
+}
+
+func TestInit(t *testing.T) {
+    if tokens, err := Init(); (err != nil) || (len(tokens) != 9) ||
+        (len(ALL_TOKENS) != 72) {
+        t.Error("Init()")
+    }
+}
+
+func TestValidate(t *testing.T) {
+    if !Validate([]*Token{
+        {
+            Shape:     "square",
+            Fill:      "solid",
+            Color:     "green",
+            Frequency: 1,
+        },
+        {
+            Shape:     "square",
+            Fill:      "solid",
+            Color:     "green",
+            Frequency: 2,
+        },
+        {
+            Shape:     "square",
+            Fill:      "solid",
+            Color:     "green",
+            Frequency: 3,
+        },
+    }) {
+        t.Error("Validate(...)")
+    }
+    if !Validate([]*Token{
+        {
+            Shape:     "square",
+            Fill:      "solid",
+            Color:     "green",
+            Frequency: 3,
+        },
+        {
+            Shape:     "triangle",
+            Fill:      "transparent",
+            Color:     "blue",
+            Frequency: 2,
+        },
+        {
+            Shape:     "circle",
+            Fill:      "empty",
+            Color:     "red",
+            Frequency: 1,
+        },
+    }) {
+        t.Error("Validate(...)")
+    }
+    if Validate([]*Token{
+        {
+            Shape:     "square",
+            Fill:      "solid",
+            Color:     "green",
+            Frequency: 1,
+        },
+        {
+            Shape:     "square",
+            Fill:      "solid",
+            Color:     "blue",
+            Frequency: 2,
+        },
+        {
+            Shape:     "square",
+            Fill:      "solid",
+            Color:     "red",
+            Frequency: 1,
+        },
+    }) {
+        t.Error("Validate(...)")
+    }
+}

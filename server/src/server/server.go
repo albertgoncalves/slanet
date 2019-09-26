@@ -1,6 +1,7 @@
 package server
 
 import (
+    "combo"
     "encoding/json"
     "github.com/gorilla/websocket"
     "log"
@@ -14,22 +15,33 @@ type status struct {
     Address uint16 `json:"address"`
 }
 
-type maneuver struct {
-    Id        string `json:"id"`
-    Shape     string `json:"shape"`
-    Fill      string `json:"fill"`
-    Color     string `json:"color"`
-    Frequency uint8  `json:"frequency"`
-}
-
 type client struct {
     Conn   *websocket.Conn
     Status *status
 }
 
-var ADD = make(chan client)
+type ledger struct {
+    Players []*status      `json:"players"`
+    Tokens  []*combo.Token `json:"tokens"`
+}
+
+var MEMO = make(chan client)
 var REMOVE = make(chan *websocket.Conn)
 var CLIENTS = make(map[*websocket.Conn]*status)
+var DEPLETE = make(chan []*combo.Token)
+
+var TOKENS = func() []*combo.Token {
+    combo.ShuffleTokens()
+    tokens, _ := combo.Init()
+    for {
+        if combo.AnySolution(tokens) {
+            return tokens
+        }
+        combo.ALL_TOKENS = combo.AllTokens()
+        combo.ShuffleTokens()
+        tokens, _ = combo.Init()
+    }
+}()
 
 const BOLD = "\033[1m"
 const END = "\033[0m"
@@ -72,25 +84,42 @@ func socket(w http.ResponseWriter, r *http.Request) {
         logError("socket(...)", "conn.ReadJSON(s)", err)
         return
     }
-    ADD <- client{Conn: conn, Status: s}
+    MEMO <- client{Conn: conn, Status: s}
     for {
-        m := &[]maneuver{}
-        if err := conn.ReadJSON(m); err != nil {
+        tokens := &[]*combo.Token{}
+        if err := conn.ReadJSON(tokens); err != nil {
             REMOVE <- conn
             logError("socket(...)", "conn.ReadJSON(u)", err)
             return
         }
-        log.Printf("%s\n", pretty(m))
+        if combo.Validate(*tokens) {
+            s.Score++
+            MEMO <- client{Conn: conn, Status: s}
+            DEPLETE <- *tokens
+        }
     }
 }
 
 func broadcast() {
     for {
         select {
-        case client := <-ADD:
+        case client := <-MEMO:
             CLIENTS[client.Conn] = client.Status
         case conn := <-REMOVE:
             delete(CLIENTS, conn)
+        case tokens := <-DEPLETE:
+            for _, token := range tokens {
+                replacement, err := combo.Pop()
+                if err != nil {
+                    break
+                }
+                index, err := combo.Lookup(token.Id)
+                if err != nil {
+                    break
+                }
+                TOKENS[index] = replacement
+                TOKENS[index].Id = token.Id
+            }
         }
         var players = make([]*status, len(CLIENTS))
         i := 0
@@ -98,8 +127,12 @@ func broadcast() {
             players[i] = p
             i++
         }
+        payload := ledger{
+            Players: players,
+            Tokens:  TOKENS,
+        }
         for conn := range CLIENTS {
-            if err := conn.WriteJSON(players); err != nil {
+            if err := conn.WriteJSON(payload); err != nil {
                 logError("broadcast()", "conn.WriteJSON(players)", err)
             }
         }

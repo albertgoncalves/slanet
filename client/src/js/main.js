@@ -11,15 +11,14 @@ function client(handle) {
         drawFrames(function(maneuver) {
             WEBSOCKET.send(JSON.stringify(maneuver));
         });
-        demo();
     };
     WEBSOCKET.onclose = function() {
         console.log("disconnected");
     };
     WEBSOCKET.onmessage = function(payload) {
         var response = JSON.parse(payload.data);
-        console.log(response);
-        inscribe(response);
+        inscribe(response.players);
+        drawTokens(response.tokens);
     };
     WEBSOCKET.onerror = function(err) {
         console.log(err);
