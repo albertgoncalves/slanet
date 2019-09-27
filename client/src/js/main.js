@@ -79,7 +79,7 @@ function client(handle) {
                 document.body.innerHTML +=
                     "<div id=\"lobby\"><p id=\"text\">" + epilogue +
                     winners.join("</strong> & <strong>") +
-                    "</strong></p></div>";
+                    "</strong>, refresh page to play again</p></div>";
             }
         }
     };
