@@ -17,8 +17,8 @@ var THICKNESS = "4.5px";
 
 var TOKEN_COLOR = {
     red: {
-        solid: "hsl(350, 50%, 60%)",
-        transparent: "hsla(350, 50%, 60%, 40%)",
+        solid: "hsl(355, 60%, 60%)",
+        transparent: "hsla(355, 60%, 60%, 40%)",
     },
     green: {
         solid: "hsl(150, 50%, 55%)",

@@ -18,8 +18,6 @@ function inscribe(players) {
         "Handle" +
         "</th><th>" +
         "Score" +
-        "</th><th>" +
-        "Address" +
         "</th></tr>";
     players.sort(function(a, b) {
         return b.score - a.score;
@@ -28,17 +26,16 @@ function inscribe(players) {
     for (var i = 0; i < n; i++) {
         var player = players[i];
         html += "<tr style=\"background:" + randomColor() + ";\"><td>" +
-            player.handle + "</td><td>" + player.score + "</td><td>" +
-            player.address + "</td></tr>";
+            player.handle + "</td><td>" + player.score + "</td></tr>";
     }
     LEDGER.innerHTML = html;
 }
 
 function winner(players) {
-    var score = 0;
-    var winners = [];
+    var score = players[0].score;
+    var winners = [players[0].handle];
     var n = players.length;
-    for (var i = 0; i < n; i++) {
+    for (var i = 1; i < n; i++) {
         if (score === players[i].score) {
             winners.push(players[i].handle);
         } else if (score < players[i].score) {
