@@ -70,7 +70,6 @@ function client(handle) {
         var response = JSON.parse(payload.data);
         console.log(response);
         if (response.message === "alive") {
-            console.log(winner(response.players));
             inscribe(response.players);
             drawTokens(response.tokens);
         } else {
