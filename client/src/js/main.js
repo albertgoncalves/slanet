@@ -36,27 +36,23 @@ function inscribe(players) {
 
 function winner(players) {
     var score = 0;
-    var player = "";
+    var winners = [];
     var n = players.length;
     for (var i = 0; i < n; i++) {
         if (score === players[i].score) {
-            if (player != "") {
-                player += "</strong> & <strong>" + players[i].handle;
-            } else {
-                player = players[i].handle;
-            }
+            winners.push(players[i].handle);
         } else if (score < players[i].score) {
             score = players[i].score;
-            player = players[i].handle;
+            winners = [players[i].handle];
         }
     }
-    return "<strong>" + player + "</strong>";
+    return winners;
 }
 
 function client(handle) {
     WEBSOCKET = new WebSocket("ws://" + HOST + ":" + PORT + "/ws");
     WEBSOCKET.onopen = function() {
-        console.log("connected");
+        console.log("alive");
         var payload = {handle: handle};
         WEBSOCKET.send(JSON.stringify(payload));
         drawFrames(function(maneuver) {
@@ -64,11 +60,10 @@ function client(handle) {
         });
     };
     WEBSOCKET.onclose = function() {
-        console.log("disconnected");
+        console.log("dead");
     };
     WEBSOCKET.onmessage = function(payload) {
         var response = JSON.parse(payload.data);
-        console.log(response);
         if (response.message === "alive") {
             inscribe(response.players);
             drawTokens(response.tokens);
@@ -77,9 +72,17 @@ function client(handle) {
             FIGURE.parentNode.removeChild(FIGURE);
             LEDGER.parentNode.removeChild(LEDGER);
             if (0 < response.players.length) {
+                winners = winner(response.players);
+                var epilogue;
+                if (1 < winners.length) {
+                    epilogue = "the winners are <strong>";
+                } else {
+                    epilogue = "the winner is <strong>";
+                }
                 document.body.innerHTML +=
-                    "<div id=\"lobby\"><p id=\"text\">the winner is " +
-                    winner(response.players) + "</p></div>";
+                    "<div id=\"lobby\"><p id=\"text\">" + epilogue +
+                    winners.join("</strong> & <strong>") +
+                    "</strong></p></div>";
             }
         }
     };
