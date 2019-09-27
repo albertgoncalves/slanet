@@ -11,7 +11,7 @@ import (
 
 type Player struct {
     Handle  string `json:"handle"`
-    Score   uint8  `json:"score"`
+    Score   int    `json:"score"`
     Address uint16 `json:"address"`
 }
 
@@ -87,10 +87,14 @@ func socket(w http.ResponseWriter, r *http.Request) {
             log.Println(err)
             return
         }
+        client := Client{Conn: conn, Player: player}
         if set.Validate(*tokens) {
             player.Score++
-            MEMO <- Client{Conn: conn, Player: player}
+            MEMO <- client
             ADVANCE <- *tokens
+        } else {
+            player.Score--
+            MEMO <- client
         }
     }
 }
