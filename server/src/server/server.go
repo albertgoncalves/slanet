@@ -9,6 +9,11 @@ import (
     "set"
 )
 
+const (
+    DEAD  uint8 = 0
+    ALIVE uint8 = 1
+)
+
 type Player struct {
     Handle  string `json:"handle"`
     Score   int    `json:"score"`
@@ -21,7 +26,7 @@ type Client struct {
 }
 
 type Frame struct {
-    Message string       `json:"message"`
+    Code    uint8        `json:"code"`
     Players []*Player    `json:"players"`
     Tokens  []*set.Token `json:"tokens"`
 }
@@ -99,7 +104,7 @@ func socket(w http.ResponseWriter, r *http.Request) {
     }
 }
 
-func broadcast(message string) {
+func broadcast(code uint8) {
     var players = make([]*Player, len(CLIENTS))
     i := 0
     for _, player := range CLIENTS {
@@ -108,7 +113,7 @@ func broadcast(message string) {
     }
     for conn := range CLIENTS {
         if err := conn.WriteJSON(Frame{
-            Message: message,
+            Code:    code,
             Players: players,
             Tokens:  TOKENS,
         }); err != nil {
@@ -118,7 +123,7 @@ func broadcast(message string) {
 }
 
 func gameOver() {
-    broadcast("dead")
+    broadcast(DEAD)
     set.ALL_TOKENS = set.AllTokens()
 }
 
@@ -159,7 +164,7 @@ func relay() {
         case tokens := <-ADVANCE:
             advance(tokens)
         }
-        broadcast("alive")
+        broadcast(ALIVE)
     }
 }
 

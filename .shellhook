@@ -12,6 +12,7 @@ if [ "$(uname -s)" = "Darwin" ]; then
     HOST=$(ipconfig getifaddr en1)
 else
     alias open="xdg-open"
+    HOST=$(hostname -I | cut -d " " -f 1)
 fi
 
 WD=$(pwd)
