@@ -36,15 +36,21 @@ function inscribe(players) {
 
 function winner(players) {
     var score = 0;
-    var player;
+    var player = "";
     var n = players.length;
     for (var i = 0; i < n; i++) {
-        if (score < players[i].score) {
+        if (score === players[i].score) {
+            if (player != "") {
+                player += "</strong> & <strong>" + players[i].handle;
+            } else {
+                player = players[i].handle;
+            }
+        } else if (score < players[i].score) {
             score = players[i].score;
             player = players[i].handle;
         }
     }
-    return player;
+    return "<strong>" + player + "</strong>";
 }
 
 function client(handle) {
@@ -64,6 +70,7 @@ function client(handle) {
         var response = JSON.parse(payload.data);
         console.log(response);
         if (response.message === "alive") {
+            console.log(winner(response.players));
             inscribe(response.players);
             drawTokens(response.tokens);
         } else {
@@ -72,8 +79,8 @@ function client(handle) {
             LEDGER.parentNode.removeChild(LEDGER);
             if (0 < response.players.length) {
                 document.body.innerHTML +=
-                    "<div id=\"lobby\"><p id=\"text\">the winner is <strong>" +
-                    winner(response.players) + "</strong></p></div>";
+                    "<div id=\"lobby\"><p id=\"text\">the winner is " +
+                    winner(response.players) + "</p></div>";
             }
         }
     };
