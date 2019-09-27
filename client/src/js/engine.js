@@ -30,10 +30,7 @@ var TOKEN_COLOR = {
     },
 };
 
-var GRAY = {
-    dark: "hsla(0, 0%, 65%, 55%)",
-    light: "hsla(0, 0%, 95%, 100%)",
-};
+var GRAY = "hsla(0, 0%, 95%, 100%)";
 
 var STATE = {};
 var MANEUVER = [];
@@ -56,8 +53,8 @@ var UNIT = 50;
 var HALF_UNIT = UNIT / 2;
 
 var MARGIN = 9;
-var X_OFFSET = 150;
-var Y_OFFSET = 25;
+var X_OFFSET = 168;
+var Y_OFFSET = 43;
 
 var X_LEFT = X_OFFSET;
 var X_CENTER = HALF_WIDTH - HALF_FRAME_WIDTH;
@@ -221,7 +218,7 @@ function rectangle(id, width, height, x, y) {
             "fill",
             "white",
             "stroke",
-            GRAY.light,
+            "white",
             "stroke-width",
             THICKNESS,
         ],
@@ -287,7 +284,7 @@ function drawFrame(callback, id, x, y) {
     var target = document.getElementById(id);
     target.addEventListener("mouseenter", function(_) {
         if (STATE.hasOwnProperty(id)) {
-            target.style.fill = GRAY.light;
+            target.style.fill = GRAY;
         }
     });
     target.addEventListener("mouseleave", function(_) {
@@ -303,20 +300,19 @@ function drawFrame(callback, id, x, y) {
         if (0 < n) {
             for (var i = 0; i < n; i++) {
                 if (MANEUVER[i].id === id) {
-                    target.style.stroke = GRAY.light;
+                    target.style.stroke = "white";
                     MANEUVER = remove(MANEUVER, i);
                     return;
                 }
             }
         }
-        target.style.stroke = GRAY.dark;
+        target.style.stroke = GRAY;
         MANEUVER.push(STATE[id].token);
         n = MANEUVER.length;
         if (N <= n) {
             callback(MANEUVER);
             for (var j = 0; j < n; j++) {
-                document.getElementById(MANEUVER[j].id).style.stroke =
-                    GRAY.light;
+                document.getElementById(MANEUVER[j].id).style.stroke = "white";
             }
             MANEUVER = [];
         }
