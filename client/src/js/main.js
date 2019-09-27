@@ -3,7 +3,7 @@ var LEDGER = document.getElementById("ledger");
 var WEBSOCKET;
 
 function client(handle) {
-    WEBSOCKET = new WebSocket("ws://localhost:8080/ws");
+    WEBSOCKET = new WebSocket("ws://" + HOST + ":" + PORT + "/ws");
     WEBSOCKET.onopen = function() {
         console.log("connected");
         var payload = {handle: handle};

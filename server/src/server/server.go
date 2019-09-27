@@ -201,10 +201,10 @@ func relay() {
     }
 }
 
-func Run(directory, port string) error {
-    log.Printf("\n\tlistening on http://localhost%s/\n\n", port)
+func Run(directory, host, port string) error {
+    log.Printf("\n\tlistening on http://%s:%s/\n\n", host, port)
     http.HandleFunc("/ws", socket)
     http.Handle("/", http.FileServer(http.Dir(directory)))
     go relay()
-    return http.ListenAndServe(port, nil)
+    return http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }

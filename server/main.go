@@ -2,11 +2,13 @@ package main
 
 import (
     "log"
+    "os"
     "server"
 )
 
 func main() {
-    if err := server.Run("../client/src", ":8080"); err != nil {
+    err := server.Run("../client/src", os.Getenv("HOST"), os.Getenv("PORT"))
+    if err != nil {
         log.Fatal(err)
     }
 }

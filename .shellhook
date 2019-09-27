@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
 
+export WD
+export GOPATH
+export JSPATH
+export HOST
+export PORT
+
 if [ "$(uname -s)" = "Darwin" ]; then
     alias ls="ls --color=auto"
     alias ll="ls -l"
+    HOST=$(ipconfig getifaddr en1)
 else
     alias open="xdg-open"
 fi
 
-export WD
-export GOPATH
-export JSPATH
 WD=$(pwd)
 GOPATH="$WD/server"
 JSPATH="$WD/client"
+PORT="8080"
+
+printf "var HOST = \"$HOST\";\nvar PORT = \"$PORT\";" > "$JSPATH/src/js/env.js"
 
 if [ ! -d "$GOPATH/bin" ]; then
     mkdir "$GOPATH/bin"
