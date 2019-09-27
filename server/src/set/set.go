@@ -110,7 +110,7 @@ func Pop() (*Token, error) {
 }
 
 func Init() ([]*Token, error) {
-    if 9 <= len(ALL_TOKENS) {
+    if 8 < len(ALL_TOKENS) {
         var tokens []*Token
         tokens, ALL_TOKENS = ALL_TOKENS[:9], ALL_TOKENS[9:]
         for i, id := range IDS {
@@ -157,9 +157,12 @@ func AnySolution(tokens []*Token) bool {
             tokens[indices[1]],
             tokens[indices[2]],
         }) {
-            fmt.Printf("SOLUTION\n%s\n", pretty(tokens[indices[0]]))
-            fmt.Printf("%s\n", pretty(tokens[indices[1]]))
-            fmt.Printf("%s\n\n", pretty(tokens[indices[2]]))
+            fmt.Printf(
+                "%s\n%s\n%s\n\n",
+                pretty(tokens[indices[0]]),
+                pretty(tokens[indices[1]]),
+                pretty(tokens[indices[2]]),
+            )
             return true
         }
     }

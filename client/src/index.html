@@ -8,15 +8,21 @@
         <title></title>
     </head>
     <body>
+        <div id="lobby">
+            <div class="center">
+                <input id="name" type="text">
+            </div>
+            <p id="text">
+                type your name and press <strong>enter</strong> to play
+            </p>
+        </div>
         <div id="figure">
             <svg id="canvas"></svg>
         </div>
         <div>
-            <div class="center">
-                <input id="name" type="text">
-            </div>
             <table id="ledger"></table>
         </div>
+        <div id="gameover"></div>
         <script src="js/env.js"></script>
         <script src="js/engine.js"></script>
         <script src="js/main.js"></script>
