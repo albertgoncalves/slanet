@@ -11,7 +11,7 @@ if [ "$(uname -s)" = "Darwin" ]; then
     alias ll="ls -l"
     HOST=$(ipconfig getifaddr en1)
 else
-    alias open="xdg-open"
+    alias open="nautilus --no-desktop"
     HOST=$(hostname -I | cut -d " " -f 1)
 fi
 
