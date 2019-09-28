@@ -83,8 +83,8 @@ function client(handle) {
             }
         }
     };
-    WEBSOCKET.onerror = function(err) {
-        console.log(err);
+    WEBSOCKET.onerror = function(error) {
+        console.log(error);
     };
 }
 
