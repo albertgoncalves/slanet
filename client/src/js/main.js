@@ -61,7 +61,7 @@ function client(handle) {
     };
     WEBSOCKET.onmessage = function(payload) {
         var response = JSON.parse(payload.data);
-        if (response.code === 1) {
+        if (response.alive) {
             inscribe(response.players);
             drawTokens(response.tokens);
         } else {
