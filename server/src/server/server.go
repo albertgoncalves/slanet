@@ -28,20 +28,11 @@ type Frame struct {
 
 var MEMO = make(chan Client)
 var REMOVE = make(chan *websocket.Conn)
-var CLIENTS = make(map[*websocket.Conn]*Player)
 var ADVANCE = make(chan []*set.Token)
 
-var TOKENS = func() []*set.Token {
-    for {
-        set.Shuffle()
-        tokens, err := set.Init()
-        if err != nil {
-            set.ALL_TOKENS = set.AllTokens()
-        } else if set.AnySolution(tokens) {
-            return tokens
-        }
-    }
-}()
+var CLIENTS = make(map[*websocket.Conn]*Player)
+
+var TOKENS = set.Start(true)
 
 var LOOKUP = func() map[string]int {
     lookup := make(map[string]int)
@@ -136,14 +127,14 @@ func advance(tokens []*set.Token) {
             TOKENS[index].Id = token.Id
         }
     }
-    for !set.AnySolution(TOKENS) {
+    for !set.AnySolution(TOKENS, true) {
         if len(set.ALL_TOKENS) < 1 {
             gameOver()
         } else {
             for _, token := range TOKENS {
                 set.ALL_TOKENS = append(set.ALL_TOKENS, token)
             }
-            if !set.AnySolution(set.ALL_TOKENS) {
+            if !set.AnySolution(set.ALL_TOKENS, true) {
                 gameOver()
             }
         }

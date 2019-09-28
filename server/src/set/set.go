@@ -94,7 +94,7 @@ func AllTokens() []*Token {
     return tokens
 }
 
-var ALL_TOKENS []*Token = AllTokens()
+var ALL_TOKENS []*Token
 
 func Shuffle() {
     rand.Seed(time.Now().UnixNano())
@@ -153,21 +153,39 @@ func pretty(i interface{}) string {
     return string(s)
 }
 
-func AnySolution(tokens []*Token) bool {
+func AnySolution(tokens []*Token, flag bool) bool {
     for _, indices := range combinations(len(tokens)) {
         if Validate([]*Token{
             tokens[indices[0]],
             tokens[indices[1]],
             tokens[indices[2]],
         }) {
-            fmt.Printf(
-                "%s\n%s\n%s\n\n",
-                pretty(tokens[indices[0]]),
-                pretty(tokens[indices[1]]),
-                pretty(tokens[indices[2]]),
-            )
+            if flag {
+                fmt.Printf(
+                    "%s\n%s\n%s\n\n",
+                    pretty(tokens[indices[0]]),
+                    pretty(tokens[indices[1]]),
+                    pretty(tokens[indices[2]]),
+                )
+            }
             return true
         }
     }
     return false
+}
+
+func Start(flag bool) []*Token {
+    for {
+        Shuffle()
+        tokens, err := Init()
+        if err != nil {
+            ALL_TOKENS = AllTokens()
+        } else if !AnySolution(tokens, flag) {
+            for _, token := range tokens {
+                ALL_TOKENS = append(ALL_TOKENS, token)
+            }
+        } else {
+            return tokens
+        }
+    }
 }

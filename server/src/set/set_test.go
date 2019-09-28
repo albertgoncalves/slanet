@@ -79,11 +79,11 @@ func BenchmarkCombinations(b *testing.B) {
 }
 
 func TestAllTokens(t *testing.T) {
-    var tokens []*Token = AllTokens()
-    if len(tokens) != 81 {
+    ALL_TOKENS = AllTokens()
+    if len(ALL_TOKENS) != 81 {
         t.Error("len(AllTokens())")
     }
-    if (*tokens[0] != Token{
+    if (*ALL_TOKENS[0] != Token{
         Shape:     "square",
         Fill:      "solid",
         Color:     "green",
@@ -91,7 +91,7 @@ func TestAllTokens(t *testing.T) {
     }) {
         t.Error("AllTokens()[0]")
     }
-    if (*tokens[1] != Token{
+    if (*ALL_TOKENS[1] != Token{
         Shape:     "square",
         Fill:      "solid",
         Color:     "green",
@@ -99,7 +99,7 @@ func TestAllTokens(t *testing.T) {
     }) {
         t.Error("AllTokens()[1]")
     }
-    if (*tokens[len(tokens)-2] != Token{
+    if (*ALL_TOKENS[len(ALL_TOKENS)-2] != Token{
         Shape:     "triangle",
         Fill:      "empty",
         Color:     "blue",
@@ -107,7 +107,7 @@ func TestAllTokens(t *testing.T) {
     }) {
         t.Error("AllTokens()[len(AllTokens()) - 2]")
     }
-    if (*tokens[len(tokens)-1] != Token{
+    if (*ALL_TOKENS[len(ALL_TOKENS)-1] != Token{
         Shape:     "triangle",
         Fill:      "empty",
         Color:     "blue",
@@ -118,6 +118,7 @@ func TestAllTokens(t *testing.T) {
 }
 
 func TestPop(t *testing.T) {
+    ALL_TOKENS = AllTokens()
     expected := Token{
         Shape:     "square",
         Fill:      "solid",
@@ -131,14 +132,6 @@ func TestPop(t *testing.T) {
     ALL_TOKENS = []*Token{}
     if _, err := Pop(); err == nil {
         t.Error("Pop()")
-    }
-    ALL_TOKENS = AllTokens()
-}
-
-func TestInit(t *testing.T) {
-    if tokens, err := Init(); (err != nil) || (len(tokens) != 12) ||
-        (len(ALL_TOKENS) != 69) {
-        t.Error("Init()")
     }
 }
 
@@ -208,5 +201,22 @@ func TestValidate(t *testing.T) {
         },
     }) {
         t.Error("Validate(...)")
+    }
+}
+
+func TestInit(t *testing.T) {
+    ALL_TOKENS = AllTokens()
+    if tokens, err := Init(); (err != nil) || (len(tokens) != 12) ||
+        (len(ALL_TOKENS) != 69) {
+        t.Error("Init()")
+    }
+}
+
+func TestStart(t *testing.T) {
+    for i := 0; i < 10000; i++ {
+        ALL_TOKENS = AllTokens()
+        if !AnySolution(Start(false), false) {
+            t.Fatal("Start()")
+        }
     }
 }
