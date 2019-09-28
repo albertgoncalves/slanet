@@ -1,4 +1,6 @@
-# setgo
+# slanet
+
+Barebones [LAN](https://en.wikipedia.org/wiki/Local_area_network) implementation of [Set](https://en.wikipedia.org/wiki/Set_(card_game)), broadcast to the browser.
 
 ![](cover.png)
 
@@ -6,9 +8,9 @@ Needed things
 ---
  * [Nix](https://nixos.org/nix/)
 
-Quick start
+Server start
 ---
 ```
 $ nix-shell
-[nix-shell:path/to/setgo]$ ./main
+[nix-shell:path/to/slanet]$ ./main
 ```
