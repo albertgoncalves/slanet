@@ -1,5 +1,7 @@
 *
 !.gitignore
+!README.md
+!cover.png
 !shell.nix
 !.shellhook
 !src/
