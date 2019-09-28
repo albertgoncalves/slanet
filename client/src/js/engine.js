@@ -18,22 +18,23 @@ var TARGETS = [
 
 var THICKNESS = "4.5px";
 
-var TOKEN_COLOR = {
-    red: {
-        solid: "hsl(355, 60%, 60%)",
-        transparent: "hsla(355, 60%, 60%, 40%)",
-    },
-    green: {
-        solid: "hsl(150, 50%, 55%)",
-        transparent: "hsla(150, 50%, 55%, 40%)",
-    },
-    blue: {
-        solid: "hsl(210, 75%, 55%)",
-        transparent: "hsla(210, 75%, 55%, 40%)",
-    },
-};
+function createColor(hue) {
+    return {
+        solid: "hsl(" + hue.toString() + ", 55%, 55%)",
+        transparent: "hsl(" + hue.toString() + ", 55%, 90%)",
+    };
+}
 
-var GRAY = "hsla(0, 0%, 95%, 100%)";
+var TOKEN_COLOR = function() {
+    var red = Math.floor(Math.random() * 360) % 360;
+    return {
+        red: createColor(red),
+        green: createColor((red + 120) % 360),
+        blue: createColor((red + 240) % 360),
+    };
+}();
+
+var GRAY = "hsl(0, 0%, 95%)";
 
 var STATE = {};
 var SELECTION = [];

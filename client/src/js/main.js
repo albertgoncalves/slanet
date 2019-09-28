@@ -5,7 +5,7 @@ var NAME = document.getElementById("name");
 var WEBSOCKET;
 
 function randomColor() {
-    var h = Math.floor(Math.random() * 360);
+    var h = Math.floor(Math.random() * 360) % 360;
     var s = Math.floor(Math.random() * 25) + 75;
     var l = Math.floor(Math.random() * 25) + 50;
     var a = (Math.random() * 0.2) + 0.1;
