@@ -136,8 +136,8 @@ func TestPop(t *testing.T) {
 }
 
 func TestInit(t *testing.T) {
-    if tokens, err := Init(); (err != nil) || (len(tokens) != 9) ||
-        (len(ALL_TOKENS) != 72) {
+    if tokens, err := Init(); (err != nil) || (len(tokens) != 12) ||
+        (len(ALL_TOKENS) != 69) {
         t.Error("Init()")
     }
 }
