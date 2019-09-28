@@ -15,7 +15,7 @@ function randomColor() {
 
 function inscribe(players) {
     var html = "<tr><th>" +
-        "Handle" +
+        "Name" +
         "</th><th>" +
         "Score" +
         "</th></tr>";
@@ -26,31 +26,31 @@ function inscribe(players) {
     for (var i = 0; i < n; i++) {
         var player = players[i];
         html += "<tr style=\"background:" + randomColor() + ";\"><td>" +
-            player.handle + "</td><td>" + player.score + "</td></tr>";
+            player.name + "</td><td>" + player.score + "</td></tr>";
     }
     LEDGER.innerHTML = html;
 }
 
 function winner(players) {
     var score = players[0].score;
-    var winners = [players[0].handle];
+    var winners = [players[0].name];
     var n = players.length;
     for (var i = 1; i < n; i++) {
         if (score === players[i].score) {
-            winners.push(players[i].handle);
+            winners.push(players[i].name);
         } else if (score < players[i].score) {
             score = players[i].score;
-            winners = [players[i].handle];
+            winners = [players[i].name];
         }
     }
     return winners;
 }
 
-function client(handle) {
+function client(name) {
     WEBSOCKET = new WebSocket("ws://" + HOST + ":" + PORT + "/ws");
     WEBSOCKET.onopen = function() {
         console.log("alive");
-        var payload = {handle: handle};
+        var payload = {name: name};
         WEBSOCKET.send(JSON.stringify(payload));
         drawFrames(function(selection) {
             WEBSOCKET.send(JSON.stringify(selection));
@@ -91,10 +91,10 @@ function client(handle) {
 window.addEventListener("load", function() {
     NAME.onkeypress = function(event) {
         if (event.keyCode === 13) {
-            var handle = NAME.value;
-            if (handle != "") {
+            var name = NAME.value;
+            if (name != "") {
                 LOBBY.parentNode.removeChild(LOBBY);
-                client(handle);
+                client(name);
                 NAME.onkeypress = null;
             }
         }

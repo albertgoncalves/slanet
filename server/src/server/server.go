@@ -10,7 +10,7 @@ import (
 )
 
 type Player struct {
-    Handle  string `json:"handle"`
+    Name    string `json:"name"`
     Score   int    `json:"score"`
     Address uint16 `json:"address"`
 }
