@@ -59,6 +59,9 @@ var LOOKUP = func() map[string]int {
     lookup["2,0"] = 6
     lookup["2,1"] = 7
     lookup["2,2"] = 8
+    lookup["3,0"] = 9
+    lookup["3,1"] = 10
+    lookup["3,2"] = 11
     return lookup
 }()
 

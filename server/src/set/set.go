@@ -60,7 +60,7 @@ var COLORS = [K]string{
     "blue",
 }
 
-var IDS = [9]string{
+var IDS = [12]string{
     "0,0",
     "0,1",
     "0,2",
@@ -70,6 +70,9 @@ var IDS = [9]string{
     "2,0",
     "2,1",
     "2,2",
+    "3,0",
+    "3,1",
+    "3,2",
 }
 
 func AllTokens() []*Token {
@@ -110,9 +113,9 @@ func Pop() (*Token, error) {
 }
 
 func Init() ([]*Token, error) {
-    if 8 < len(ALL_TOKENS) {
+    if 11 < len(ALL_TOKENS) {
         var tokens []*Token
-        tokens, ALL_TOKENS = ALL_TOKENS[:9], ALL_TOKENS[9:]
+        tokens, ALL_TOKENS = ALL_TOKENS[:12], ALL_TOKENS[12:]
         for i, id := range IDS {
             tokens[i].Id = id
         }

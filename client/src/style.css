@@ -2,11 +2,11 @@ body {
     font-family: Courier New, monospace;
     font-size: 16px;
     margin: auto;
-    width: 800px;
+    width: 500px;
 }
 
 div#figure {
-    height: 700px;
+    height: 715px;
 }
 
 svg {
@@ -33,8 +33,8 @@ div.center {
 table {
     border-collapse: collapse;
     text-align: center;
-    margin-left: 35%;
-    margin-right: 35%;
-    width: 30%;
+    margin-left: 10%;
+    margin-right: 10%;
+    width: 80%;
     padding: 4px;
 }

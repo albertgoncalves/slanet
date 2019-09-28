@@ -52,8 +52,8 @@ function client(handle) {
         console.log("alive");
         var payload = {handle: handle};
         WEBSOCKET.send(JSON.stringify(payload));
-        drawFrames(function(maneuver) {
-            WEBSOCKET.send(JSON.stringify(maneuver));
+        drawFrames(function(selection) {
+            WEBSOCKET.send(JSON.stringify(selection));
         });
     };
     WEBSOCKET.onclose = function() {
@@ -72,13 +72,13 @@ function client(handle) {
                 winners = winner(response.players);
                 var epilogue;
                 if (1 < winners.length) {
-                    epilogue = "the winners are <strong>";
+                    epilogue = "the winners are ";
                 } else {
-                    epilogue = "the winner is <strong>";
+                    epilogue = "the winner is ";
                 }
                 document.body.innerHTML +=
                     "<div id=\"lobby\"><p id=\"text\">" + epilogue +
-                    winners.join("</strong> & <strong>") +
+                    "<strong>" + winners.join("</strong> & <strong>") +
                     "</strong>, refresh page to play again</p></div>";
             }
         }

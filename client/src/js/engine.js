@@ -1,5 +1,5 @@
 var N = 3;
-var M = 9;
+var M = 12;
 
 var TARGETS = [
     "0,0",
@@ -11,6 +11,9 @@ var TARGETS = [
     "2,0",
     "2,1",
     "2,2",
+    "3,0",
+    "3,1",
+    "3,2",
 ];
 
 var THICKNESS = "4.5px";
@@ -33,12 +36,14 @@ var TOKEN_COLOR = {
 var GRAY = "hsla(0, 0%, 95%, 100%)";
 
 var STATE = {};
-var MANEUVER = [];
+var SELECTION = [];
 
 var FIGURE = document.getElementById("figure");
 
 var WIDTH = FIGURE.offsetWidth;
-var HALF_WIDTH = WIDTH / 2;
+var THIRD_WIDTH = WIDTH / 3;
+var TWO_THIRD_WIDTH = THIRD_WIDTH * 2;
+
 var HEIGHT = FIGURE.offsetHeight;
 
 var FRAME_WIDTH = 150;
@@ -49,23 +54,27 @@ var HALF_FRAME_HEIGHT = FRAME_HEIGHT / 2;
 
 var THIRD_FRAME_HEIGHT = FRAME_HEIGHT / 3;
 
-var UNIT = 50;
-var HALF_UNIT = UNIT / 2;
-
 var MARGIN = 9;
-var X_OFFSET = 168;
+var X_OFFSET = 20;
 var Y_OFFSET = 43;
+var CENTER_OFFSET = 0;
 
-var X_LEFT = X_OFFSET;
-var X_CENTER = HALF_WIDTH - HALF_FRAME_WIDTH;
-var X_RIGHT = WIDTH - X_OFFSET - FRAME_WIDTH;
+var X_LEFT = -HALF_FRAME_WIDTH;
+var X_CENTER_LEFT = THIRD_WIDTH - HALF_FRAME_WIDTH;
+var X_CENTER_RIGHT = TWO_THIRD_WIDTH - HALF_FRAME_WIDTH;
+var X_RIGHT = WIDTH - HALF_FRAME_WIDTH;
+
 var Y_TOP = Y_OFFSET;
 var Y_CENTER = (HEIGHT / 2) - HALF_FRAME_HEIGHT;
 var Y_BOTTOM = HEIGHT - Y_OFFSET - FRAME_HEIGHT;
 
-var X_TOKEN_LEFT = HALF_FRAME_WIDTH + X_OFFSET - HALF_UNIT;
-var X_TOKEN_CENTER = HALF_WIDTH - HALF_UNIT;
-var X_TOKEN_RIGHT = WIDTH - X_OFFSET - HALF_FRAME_WIDTH - HALF_UNIT;
+var UNIT = 50;
+var HALF_UNIT = UNIT / 2;
+
+var X_TOKEN_LEFT = -HALF_UNIT;
+var X_TOKEN_CENTER_LEFT = THIRD_WIDTH - HALF_UNIT;
+var X_TOKEN_CENTER_RIGHT = TWO_THIRD_WIDTH - HALF_UNIT;
+var X_TOKEN_RIGHT = WIDTH - HALF_UNIT;
 
 var Y_TOKEN_THREE_TOP = MARGIN;
 var Y_TOKEN_THREE_CENTER = HALF_FRAME_HEIGHT - HALF_UNIT;
@@ -88,26 +97,38 @@ var FRAME_ROUTER = {
         y: Y_BOTTOM,
     },
     "1,0": {
-        x: X_TOKEN_CENTER,
+        x: X_TOKEN_CENTER_LEFT,
         y: Y_TOP,
     },
     "1,1": {
-        x: X_TOKEN_CENTER,
+        x: X_TOKEN_CENTER_LEFT,
         y: Y_CENTER,
     },
     "1,2": {
-        x: X_TOKEN_CENTER,
+        x: X_TOKEN_CENTER_LEFT,
         y: Y_BOTTOM,
     },
     "2,0": {
-        x: X_TOKEN_RIGHT,
+        x: X_TOKEN_CENTER_RIGHT,
         y: Y_TOP,
     },
     "2,1": {
-        x: X_TOKEN_RIGHT,
+        x: X_TOKEN_CENTER_RIGHT,
         y: Y_CENTER,
     },
     "2,2": {
+        x: X_TOKEN_CENTER_RIGHT,
+        y: Y_BOTTOM,
+    },
+    "3,0": {
+        x: X_TOKEN_RIGHT,
+        y: Y_TOP,
+    },
+    "3,1": {
+        x: X_TOKEN_RIGHT,
+        y: Y_CENTER,
+    },
+    "3,2": {
         x: X_TOKEN_RIGHT,
         y: Y_BOTTOM,
     },
@@ -296,25 +317,26 @@ function drawFrame(callback, id, x, y) {
         if (!STATE.hasOwnProperty(id)) {
             return;
         }
-        var n = MANEUVER.length;
+        var n = SELECTION.length;
         if (0 < n) {
             for (var i = 0; i < n; i++) {
-                if (MANEUVER[i].id === id) {
+                if (SELECTION[i].id === id) {
                     target.style.stroke = "white";
-                    MANEUVER = remove(MANEUVER, i);
+                    SELECTION = remove(SELECTION, i);
                     return;
                 }
             }
         }
         target.style.stroke = GRAY;
-        MANEUVER.push(STATE[id].token);
-        n = MANEUVER.length;
+        SELECTION.push(STATE[id].token);
+        n = SELECTION.length;
         if (N <= n) {
-            callback(MANEUVER);
+            callback(SELECTION);
             for (var j = 0; j < n; j++) {
-                document.getElementById(MANEUVER[j].id).style.stroke = "white";
+                document.getElementById(SELECTION[j].id).style.stroke =
+                    "white";
             }
-            MANEUVER = [];
+            SELECTION = [];
         }
     };
 }
@@ -323,12 +345,15 @@ function drawFrames(callback) {
     drawFrame(callback, "0,0", X_LEFT, Y_TOP);
     drawFrame(callback, "0,1", X_LEFT, Y_CENTER);
     drawFrame(callback, "0,2", X_LEFT, Y_BOTTOM);
-    drawFrame(callback, "1,0", X_CENTER, Y_TOP);
-    drawFrame(callback, "1,1", X_CENTER, Y_CENTER);
-    drawFrame(callback, "1,2", X_CENTER, Y_BOTTOM);
-    drawFrame(callback, "2,0", X_RIGHT, Y_TOP);
-    drawFrame(callback, "2,1", X_RIGHT, Y_CENTER);
-    drawFrame(callback, "2,2", X_RIGHT, Y_BOTTOM);
+    drawFrame(callback, "1,0", X_CENTER_LEFT, Y_TOP);
+    drawFrame(callback, "1,1", X_CENTER_LEFT, Y_CENTER);
+    drawFrame(callback, "1,2", X_CENTER_LEFT, Y_BOTTOM);
+    drawFrame(callback, "2,0", X_CENTER_RIGHT, Y_TOP);
+    drawFrame(callback, "2,1", X_CENTER_RIGHT, Y_CENTER);
+    drawFrame(callback, "2,2", X_CENTER_RIGHT, Y_BOTTOM);
+    drawFrame(callback, "3,0", X_RIGHT, Y_TOP);
+    drawFrame(callback, "3,1", X_RIGHT, Y_CENTER);
+    drawFrame(callback, "3,2", X_RIGHT, Y_BOTTOM);
 }
 
 function drawToken(token) {
