@@ -16,7 +16,7 @@ var TARGETS = [
     "3,2",
 ];
 
-var THICKNESS = "4.5px";
+var THICKNESS = "5px";
 
 function createColor(hue) {
     return {
@@ -34,7 +34,7 @@ var TOKEN_COLOR = function() {
     };
 }();
 
-var GRAY = "hsl(0, 0%, 95%)";
+var GRAY = "hsl(0, 0%, 90%)";
 
 var STATE = {};
 var SELECTION = [];
@@ -55,10 +55,9 @@ var HALF_FRAME_HEIGHT = FRAME_HEIGHT / 2;
 
 var THIRD_FRAME_HEIGHT = FRAME_HEIGHT / 3;
 
-var MARGIN = 9;
+var MARGIN = 15;
 var X_OFFSET = 20;
 var Y_OFFSET = 43;
-var CENTER_OFFSET = 0;
 
 var X_LEFT = -HALF_FRAME_WIDTH;
 var X_CENTER_LEFT = THIRD_WIDTH - HALF_FRAME_WIDTH;
@@ -170,7 +169,7 @@ function remove(array, index) {
 function equivalent(a, b) {
     var aKeys = Object.getOwnPropertyNames(a);
     var n = aKeys.length;
-    if (n != Object.getOwnPropertyNames(b).length) {
+    if (n !== Object.getOwnPropertyNames(b).length) {
         return false;
     }
     for (var i = 0; i < n; i++) {
@@ -333,11 +332,6 @@ function drawFrame(callback, id, x, y) {
         n = SELECTION.length;
         if (N <= n) {
             callback(SELECTION);
-            for (var j = 0; j < n; j++) {
-                document.getElementById(SELECTION[j].id).style.stroke =
-                    "white";
-            }
-            SELECTION = [];
         }
     };
 }
@@ -382,25 +376,40 @@ function drawToken(token) {
     };
 }
 
+function deselect(id) {
+    var n = SELECTION.length;
+    var selection = [];
+    for (var i = 0; i < n; i++) {
+        if (id !== SELECTION[i].id) {
+            selection.push(SELECTION[i]);
+        }
+    }
+    SELECTION = selection;
+    var target = document.getElementById(id);
+    target.style.fill = "white";
+    target.style.stroke = "white";
+}
+
 function drawTokens(tokens) {
     var n = tokens.length;
     var successor = {};
     for (var i = 0; i < n; i++) {
-        if (tokens[i] != null) {
+        if (tokens[i] !== null) {
             successor[tokens[i].id] = tokens[i];
         }
     }
     var id;
     for (var j = 0; j < M; j++) {
         id = TARGETS[j];
-        document.getElementById(id).style.fill = "white";
         if (STATE.hasOwnProperty(id) && successor.hasOwnProperty(id)) {
             if (!equivalent(STATE[id].token, successor[id])) {
                 STATE[id].reset();
                 drawToken(successor[id]);
+                deselect(id);
             }
         } else if (STATE.hasOwnProperty(id)) {
             STATE[id].reset();
+            deselect(id);
         } else if (successor.hasOwnProperty(id)) {
             drawToken(successor[id]);
         }
