@@ -21,7 +21,7 @@ var THICKNESS = "4.5px";
 function createColor(hue) {
     return {
         solid: "hsl(" + hue.toString() + ", 55%, 55%)",
-        transparent: "hsl(" + hue.toString() + ", 55%, 90%)",
+        transparent: "hsl(" + hue.toString() + ", 55%, 85%)",
     };
 }
 
