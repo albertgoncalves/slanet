@@ -25,16 +25,21 @@ function createColor(hue) {
     };
 }
 
-var TOKEN_COLOR = function() {
-    var red = Math.floor(Math.random() * 360) % 360;
+function assignColors(hue) {
     return {
-        red: createColor(red),
-        green: createColor((red + 120) % 360),
-        blue: createColor((red + 240) % 360),
+        red: createColor(hue),
+        green: createColor((hue + 120) % 360),
+        blue: createColor((hue + 240) % 360),
     };
-}();
+}
 
-var GRAY = "hsl(0, 0%, 90%)";
+var RED = Math.floor(Math.random() * 360) % 360;
+var TOKEN_COLOR = assignColors(RED);
+
+var GRAY = {
+    dark: "hsl(0, 0%, 75%)",
+    light: "hsl(0, 0%, 95%)",
+};
 
 var STATE = {};
 var SELECTION = [];
@@ -191,35 +196,24 @@ function createSvg(id, payload) {
     document.getElementById(id).appendChild(svg);
 }
 
-function fill(attributes, color) {
-    attributes.push("fill");
-    attributes.push(color);
-}
-
-function outline(attributes, color) {
-    fill(attributes, "none");
-    attributes.push("stroke");
-    attributes.push(color);
-    attributes.push("stroke-width");
-    attributes.push(THICKNESS);
-}
-
-function opacity(attributes, alpha) {
-    attributes.push("opacity");
-    attributes.push(alpha);
-}
-
 function solid(attributes, color) {
-    fill(attributes, color.solid);
-}
-
-function empty(attributes, color) {
-    outline(attributes, color.solid);
+    attributes.push("style");
+    attributes.push("fill: " + color.solid + ";");
 }
 
 function transparent(attributes, color) {
-    outline(attributes, color.solid);
-    fill(attributes, color.transparent);
+    attributes.push("stroke-width");
+    attributes.push(THICKNESS);
+    attributes.push("style");
+    attributes.push("fill: " + color.transparent + "; stroke: " + color.solid +
+                    ";");
+}
+
+function empty(attributes, color) {
+    attributes.push("stroke-width");
+    attributes.push(THICKNESS);
+    attributes.push("style");
+    attributes.push("fill: none; stroke: " + color.solid + ";");
 }
 
 function rectangle(id, width, height, x, y) {
@@ -236,12 +230,10 @@ function rectangle(id, width, height, x, y) {
             x,
             "y",
             y,
-            "fill",
-            "white",
-            "stroke",
-            "white",
             "stroke-width",
             THICKNESS,
+            "style",
+            "fill: white; stroke: white;",
         ],
     };
 }
@@ -305,7 +297,7 @@ function drawFrame(callback, id, x, y) {
     var target = document.getElementById(id);
     target.addEventListener("mouseenter", function(_) {
         if (STATE.hasOwnProperty(id)) {
-            target.style.fill = GRAY;
+            target.style.fill = GRAY.light;
         }
     });
     target.addEventListener("mouseleave", function(_) {
@@ -327,7 +319,7 @@ function drawFrame(callback, id, x, y) {
                 }
             }
         }
-        target.style.stroke = GRAY;
+        target.style.stroke = GRAY.dark;
         SELECTION.push(STATE[id].token);
         n = SELECTION.length;
         if (N <= n) {
@@ -418,6 +410,24 @@ function drawTokens(tokens) {
             deselect(id);
         } else if (successor.hasOwnProperty(id)) {
             drawToken(successor[id]);
+        }
+    }
+}
+
+function paintTokens() {
+    for (var i = 0; i < M; i++) {
+        var token = STATE[TARGETS[i]].token;
+        var target;
+        for (var j = 0; j < token.frequency; j++) {
+            target = document.getElementById(token.id + "," + j.toString());
+            if (token.fill === "solid") {
+                target.style.fill = TOKEN_COLOR[token.color].solid;
+            } else if (token.fill === "transparent") {
+                target.style.fill = TOKEN_COLOR[token.color].transparent;
+                target.style.stroke = TOKEN_COLOR[token.color].solid;
+            } else if (token.fill === "empty") {
+                target.style.stroke = TOKEN_COLOR[token.color].solid;
+            }
         }
     }
 }

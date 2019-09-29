@@ -27,7 +27,8 @@ svg {
 div.center {
     text-align: center;
     display: block;
-    margin: 5px;
+    margin: 0px;
+    margin-bottom: 20px;
 }
 
 table {
@@ -37,4 +38,29 @@ table {
     margin-right: 10%;
     width: 80%;
     padding: 4px;
+}
+
+#slider {
+    -webkit-appearance: none;
+    margin-left: 10%;
+    margin-right: 10%;
+    width: 80%;
+    height: 4px;
+    background: hsl(0, 0%, 85%);
+    outline: none;
+    opacity: 0.7;
+}
+
+#slider:hover {
+    opacity: 1;
+}
+
+#slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 22px;
+    background: hsl(0, 0%, 85%);
+    cursor: pointer;
 }

@@ -1,4 +1,5 @@
 var FIGURE = document.getElementById("figure");
+var BASE = document.getElementById("base");
 var LEDGER = document.getElementById("ledger");
 var LOBBY = document.getElementById("lobby");
 var NAME = document.getElementById("name");
@@ -67,6 +68,7 @@ function client(name) {
         } else {
             WEBSOCKET.close();
             FIGURE.parentNode.removeChild(FIGURE);
+            BASE.parentNode.removeChild(BASE);
             LEDGER.parentNode.removeChild(LEDGER);
             if (0 < response.players.length) {
                 winners = winner(response.players);
@@ -97,6 +99,17 @@ window.addEventListener("load", function() {
                 client(name);
                 NAME.onkeypress = null;
             }
+            var slider = document.createElement("div");
+            slider.className = "center";
+            slider.innerHTML +=
+                "<input type=\"range\" min=\"0\" max=\"359\" value=\"" +
+                RED.toString() + "\" id=\"slider\">";
+            slider.oninput = function() {
+                TOKEN_COLOR = assignColors(
+                    parseInt(document.getElementById("slider").value), 10);
+                paintTokens();
+            };
+            BASE.parentNode.insertBefore(slider, BASE);
         }
     };
 }, false);
