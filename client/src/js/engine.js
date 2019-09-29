@@ -332,6 +332,12 @@ function drawFrame(callback, id, x, y) {
         n = SELECTION.length;
         if (N <= n) {
             callback(SELECTION);
+            for (var j = 0; j < n; j++) {
+                target = document.getElementById(SELECTION[j].id);
+                target.style.fill = "white";
+                target.style.stroke = "white";
+            }
+            SELECTION = [];
         }
     };
 }
