@@ -1,3 +1,8 @@
+"use strict";
+
+/*  global assignColors, drawFrames, drawTokens, HOST, paintTokens, PORT, RED,
+        TOKEN_COLOR:true */
+
 var FIGURE = document.getElementById("figure");
 var BASE = document.getElementById("base");
 var LEDGER = document.getElementById("ledger");
@@ -67,7 +72,7 @@ function client(name) {
             document.body.removeChild(FIGURE);
             document.body.removeChild(BASE);
             if (0 < response.players.length) {
-                winners = winner(response.players);
+                var winners = winner(response.players);
                 var epilogue;
                 if (1 < winners.length) {
                     epilogue = "the winners are ";

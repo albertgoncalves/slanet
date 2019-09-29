@@ -1,6 +1,10 @@
+"use strict";
+
 var N = 3;
 var M = 12;
 
+var STATE = {};
+var SELECTION = [];
 var TARGETS = [
     "0,0",
     "0,1",
@@ -18,21 +22,6 @@ var TARGETS = [
 
 var THICKNESS = "5px";
 
-function createColor(hue) {
-    return {
-        solid: "hsl(" + hue.toString() + ", 55%, 55%)",
-        transparent: "hsl(" + hue.toString() + ", 55%, 85%)",
-    };
-}
-
-function assignColors(hue) {
-    return {
-        red: createColor(hue),
-        green: createColor((hue + 120) % 360),
-        blue: createColor((hue + 240) % 360),
-    };
-}
-
 var RED = Math.floor(Math.random() * 360) % 360;
 var TOKEN_COLOR = assignColors(RED);
 
@@ -40,9 +29,6 @@ var GRAY = {
     dark: "hsl(0, 0%, 75%)",
     light: "hsl(0, 0%, 95%)",
 };
-
-var STATE = {};
-var SELECTION = [];
 
 var FIGURE = document.getElementById("figure");
 
@@ -157,6 +143,21 @@ var FILL_ROUTER = {
     empty: empty,
 };
 
+function createColor(hue) {
+    return {
+        solid: "hsl(" + hue.toString() + ", 55%, 55%)",
+        transparent: "hsl(" + hue.toString() + ", 55%, 85%)",
+    };
+}
+
+function assignColors(hue) {
+    return {
+        red: createColor(hue),
+        green: createColor((hue + 120) % 360),
+        blue: createColor((hue + 240) % 360),
+    };
+}
+
 function remove(array, index) {
     var newArray = new Array(array.length - 1);
     var offset = 0;
@@ -261,7 +262,7 @@ function square(id, unit, x, y) {
 }
 
 function circle(id, diameter, x, y) {
-    radius = diameter / 2;
+    var radius = diameter / 2;
     return {
         shape: "circle",
         attributes: [

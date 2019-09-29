@@ -14,6 +14,7 @@
 !*.css
 !*.js
 env.js
+!.jshintrc
 !.tidyrc
 !.clang-format
 !main
