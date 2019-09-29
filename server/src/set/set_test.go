@@ -214,7 +214,6 @@ func TestInit(t *testing.T) {
 
 func TestStart(t *testing.T) {
     for i := 0; i < 10000; i++ {
-        ALL_TOKENS = AllTokens()
         if !AnySolution(Start(false), false) {
             t.Fatal("Start()")
         }

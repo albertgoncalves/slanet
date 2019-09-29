@@ -233,7 +233,9 @@ function rectangle(id, width, height, x, y) {
             "stroke-width",
             THICKNESS,
             "style",
-            "fill: white; stroke: white;",
+            "fill: none; stroke: none;",
+            "pointer-events",
+            "all",
         ],
     };
 }
@@ -302,7 +304,7 @@ function drawFrame(callback, id, x, y) {
     });
     target.addEventListener("mouseleave", function(_) {
         if (STATE.hasOwnProperty(id)) {
-            target.style.fill = "white";
+            target.style.fill = "none";
         }
     });
     target.onclick = function(_) {
@@ -313,7 +315,7 @@ function drawFrame(callback, id, x, y) {
         if (0 < n) {
             for (var i = 0; i < n; i++) {
                 if (SELECTION[i].id === id) {
-                    target.style.stroke = "white";
+                    target.style.stroke = "none";
                     SELECTION = remove(SELECTION, i);
                     return;
                 }
@@ -326,8 +328,8 @@ function drawFrame(callback, id, x, y) {
             callback(SELECTION);
             for (var j = 0; j < n; j++) {
                 target = document.getElementById(SELECTION[j].id);
-                target.style.fill = "white";
-                target.style.stroke = "white";
+                target.style.fill = "none";
+                target.style.stroke = "none";
             }
             SELECTION = [];
         }
@@ -384,8 +386,8 @@ function deselect(id) {
     }
     SELECTION = selection;
     var target = document.getElementById(id);
-    target.style.fill = "white";
-    target.style.stroke = "white";
+    target.style.fill = "none";
+    target.style.stroke = "none";
 }
 
 function drawTokens(tokens) {
@@ -416,17 +418,21 @@ function drawTokens(tokens) {
 
 function paintTokens() {
     for (var i = 0; i < M; i++) {
-        var token = STATE[TARGETS[i]].token;
-        var target;
-        for (var j = 0; j < token.frequency; j++) {
-            target = document.getElementById(token.id + "," + j.toString());
-            if (token.fill === "solid") {
-                target.style.fill = TOKEN_COLOR[token.color].solid;
-            } else if (token.fill === "transparent") {
-                target.style.fill = TOKEN_COLOR[token.color].transparent;
-                target.style.stroke = TOKEN_COLOR[token.color].solid;
-            } else if (token.fill === "empty") {
-                target.style.stroke = TOKEN_COLOR[token.color].solid;
+        var id = TARGETS[i];
+        if (STATE.hasOwnProperty(id)) {
+            var token = STATE[id].token;
+            var target;
+            for (var j = 0; j < token.frequency; j++) {
+                target =
+                    document.getElementById(token.id + "," + j.toString());
+                if (token.fill === "solid") {
+                    target.style.fill = TOKEN_COLOR[token.color].solid;
+                } else if (token.fill === "transparent") {
+                    target.style.fill = TOKEN_COLOR[token.color].transparent;
+                    target.style.stroke = TOKEN_COLOR[token.color].solid;
+                } else if (token.fill === "empty") {
+                    target.style.stroke = TOKEN_COLOR[token.color].solid;
+                }
             }
         }
     }

@@ -50,16 +50,13 @@ function winner(players) {
 function client(name) {
     WEBSOCKET = new WebSocket("ws://" + HOST + ":" + PORT + "/ws");
     WEBSOCKET.onopen = function() {
-        console.log("alive");
         var payload = {name: name};
         WEBSOCKET.send(JSON.stringify(payload));
         drawFrames(function(selection) {
             WEBSOCKET.send(JSON.stringify(selection));
         });
     };
-    WEBSOCKET.onclose = function() {
-        console.log("dead");
-    };
+    WEBSOCKET.onclose = function() {};
     WEBSOCKET.onmessage = function(payload) {
         var response = JSON.parse(payload.data);
         if (response.alive) {
@@ -67,9 +64,8 @@ function client(name) {
             drawTokens(response.tokens);
         } else {
             WEBSOCKET.close();
-            FIGURE.parentNode.removeChild(FIGURE);
-            BASE.parentNode.removeChild(BASE);
-            LEDGER.parentNode.removeChild(LEDGER);
+            document.body.removeChild(FIGURE);
+            document.body.removeChild(BASE);
             if (0 < response.players.length) {
                 winners = winner(response.players);
                 var epilogue;
@@ -95,7 +91,7 @@ window.addEventListener("load", function() {
         if (event.keyCode === 13) {
             var name = NAME.value;
             if (name != "") {
-                LOBBY.parentNode.removeChild(LOBBY);
+                document.body.removeChild(LOBBY);
                 client(name);
                 NAME.onkeypress = null;
             }
@@ -109,7 +105,7 @@ window.addEventListener("load", function() {
                     parseInt(document.getElementById("slider").value), 10);
                 paintTokens();
             };
-            BASE.parentNode.insertBefore(slider, BASE);
+            LEDGER.parentNode.insertBefore(slider, LEDGER);
         }
     };
 }, false);

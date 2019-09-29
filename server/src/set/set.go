@@ -175,12 +175,11 @@ func AnySolution(tokens []*Token, flag bool) bool {
 }
 
 func Start(flag bool) []*Token {
+    ALL_TOKENS = AllTokens()
     for {
         Shuffle()
-        tokens, err := Init()
-        if err != nil {
-            ALL_TOKENS = AllTokens()
-        } else if !AnySolution(tokens, flag) {
+        tokens, _ := Init()
+        if !AnySolution(tokens, flag) {
             for _, token := range tokens {
                 ALL_TOKENS = append(ALL_TOKENS, token)
             }
