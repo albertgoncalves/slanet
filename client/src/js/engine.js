@@ -30,7 +30,7 @@ var GRAY = {
         return "hsl(" + randomHue().toString() + ", 30%, 80%)";
     },
     light: function() {
-        return "hsla(" + randomHue().toString() + ", 30%, 95%, 80%)";
+        return "hsla(" + randomHue().toString() + ", 30%, 95%, 0.8)";
     },
 };
 
@@ -152,9 +152,10 @@ function randomHue() {
 }
 
 function createColor(hue) {
+    var h = hue.toString();
     return {
-        solid: "hsl(" + hue.toString() + ", 55%, 55%)",
-        transparent: "hsl(" + hue.toString() + ", 55%, 85%)",
+        solid: "hsl(" + h + ", 55%, 55%)",
+        transparent: "hsl(" + h + ", 55%, 85%)",
     };
 }
 

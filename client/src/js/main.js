@@ -1,7 +1,7 @@
 "use strict";
 
-/*  global assignColors, drawFrames, drawTokens, HOST, paintTokens, PORT, RED,
-        TOKEN_COLOR:true */
+/*  global assignColors, drawFrames, drawTokens, HOST, paintTokens, PORT,
+        randomHue, RED, TOKEN_COLOR:true */
 
 var FIGURE = document.getElementById("figure");
 var BASE = document.getElementById("base");
@@ -11,12 +11,10 @@ var NAME = document.getElementById("name");
 var WEBSOCKET;
 
 function randomColor() {
-    var h = Math.floor(Math.random() * 359);
-    var s = Math.floor(Math.random() * 25) + 75;
-    var l = Math.floor(Math.random() * 25) + 50;
-    var a = (Math.random() * 0.2) + 0.1;
-    return "hsla(" + h.toString() + ", " + s.toString() + "%, " +
-        l.toString() + "%, " + a.toString() + ")";
+    return "hsla(" + randomHue().toString() + ", " +
+        (Math.floor(Math.random() * 25) + 75).toString() + "%, " +
+        (Math.floor(Math.random() * 25) + 50).toString() + "%, " +
+        ((Math.random() * 0.2) + 0.1).toString() + ")";
 }
 
 function inscribe(players) {
