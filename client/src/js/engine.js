@@ -22,12 +22,16 @@ var TARGETS = [
 
 var THICKNESS = "5px";
 
-var RED = Math.floor(Math.random() * 360) % 360;
+var RED = randomHue();
 var TOKEN_COLOR = assignColors(RED);
 
 var GRAY = {
-    dark: "hsl(0, 0%, 75%)",
-    light: "hsl(0, 0%, 95%)",
+    dark: function() {
+        return "hsl(" + randomHue().toString() + ", 30%, 75%)";
+    },
+    light: function() {
+        return "hsl(" + randomHue().toString() + ", 30%, 95%)";
+    },
 };
 
 var FIGURE = document.getElementById("figure");
@@ -142,6 +146,10 @@ var FILL_ROUTER = {
     transparent: transparent,
     empty: empty,
 };
+
+function randomHue() {
+    return Math.floor(Math.random() * 359);
+}
 
 function createColor(hue) {
     return {
@@ -300,7 +308,7 @@ function drawFrame(callback, id, x, y) {
     var target = document.getElementById(id);
     target.addEventListener("mouseenter", function(_) {
         if (STATE.hasOwnProperty(id)) {
-            target.style.fill = GRAY.light;
+            target.style.fill = GRAY.light();
         }
     });
     target.addEventListener("mouseleave", function(_) {
@@ -322,7 +330,7 @@ function drawFrame(callback, id, x, y) {
                 }
             }
         }
-        target.style.stroke = GRAY.dark;
+        target.style.stroke = GRAY.dark();
         SELECTION.push(STATE[id].token);
         n = SELECTION.length;
         if (N <= n) {
