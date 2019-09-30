@@ -27,10 +27,10 @@ var TOKEN_COLOR = assignColors(RED);
 
 var GRAY = {
     dark: function() {
-        return "hsl(" + randomHue().toString() + ", 30%, 75%)";
+        return "hsl(" + randomHue().toString() + ", 30%, 80%)";
     },
     light: function() {
-        return "hsl(" + randomHue().toString() + ", 30%, 95%)";
+        return "hsla(" + randomHue().toString() + ", 30%, 95%, 80%)";
     },
 };
 
