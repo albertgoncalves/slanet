@@ -146,6 +146,15 @@ func advance(tokens []*set.Token) {
     }
 }
 
+func interrogate(tokens []*set.Token) bool {
+    for i := range tokens {
+        if *tokens[i] != *TOKENS[LOOKUP[tokens[i].Id]] {
+            return false
+        }
+    }
+    return true
+}
+
 func relay() {
     for {
         select {
@@ -156,13 +165,7 @@ func relay() {
             delete(CLIENTS, conn)
             broadcast(true)
         case tokens := <-INTERROGATE:
-            for i := range tokens {
-                if *tokens[i] != *TOKENS[LOOKUP[tokens[i].Id]] {
-                    APPROVE <- false
-                    return
-                }
-            }
-            APPROVE <- set.Validate(tokens)
+            APPROVE <- interrogate(tokens) && set.Validate(tokens)
         case tokens := <-ADVANCE:
             advance(tokens)
             broadcast(true)
