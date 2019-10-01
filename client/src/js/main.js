@@ -8,6 +8,7 @@ var BASE = document.getElementById("base");
 var LEDGER = document.getElementById("ledger");
 var LOBBY = document.getElementById("lobby");
 var NAME = document.getElementById("name");
+var SLIDER;
 var WEBSOCKET;
 
 function randomColor() {
@@ -89,26 +90,34 @@ function client(name) {
     };
 }
 
+function setColor(element, hue) {
+    element.style.setProperty("--Color", "hsl(" + hue + ", 50%, 75%)");
+}
+
 window.addEventListener("load", function() {
     NAME.onkeypress = function(event) {
         if (event.keyCode === 13) {
             var name = NAME.value;
+            var red = RED.toString();
             if (name != "") {
                 document.body.removeChild(LOBBY);
                 client(name);
                 NAME.onkeypress = null;
             }
-            var slider = document.createElement("div");
-            slider.className = "center";
-            slider.innerHTML +=
-                "<input type=\"range\" min=\"0\" max=\"359\" value=\"" +
-                RED.toString() + "\" id=\"slider\">";
-            slider.oninput = function() {
-                TOKEN_COLOR = assignColors(
-                    parseInt(document.getElementById("slider").value), 10);
+            SLIDER = document.createElement("div");
+            SLIDER.className = "center";
+            SLIDER.innerHTML +=
+                "<input type=\"range\" min=\"0\" max=\"359\" value=\"" + red +
+                "\" id=\"slider\">";
+            SLIDER.oninput = function() {
+                var slider = document.getElementById("slider");
+                TOKEN_COLOR = assignColors(parseInt(slider.value), 10);
                 paintTokens();
+                setColor(document.getElementById("slider"),
+                         slider.value.toString());
             };
-            LEDGER.parentNode.insertBefore(slider, LEDGER);
+            LEDGER.parentNode.insertBefore(SLIDER, LEDGER);
+            setColor(document.getElementById("slider"), red);
         }
     };
 }, false);
