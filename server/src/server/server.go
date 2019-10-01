@@ -18,6 +18,7 @@ type Player struct {
 type Client struct {
     Conn   *websocket.Conn
     Player *Player
+    Tokens []*set.Token
 }
 
 type Frame struct {
@@ -28,9 +29,8 @@ type Frame struct {
 
 var MEMO = make(chan Client)
 var REMOVE = make(chan *websocket.Conn)
-var INTERROGATE = make(chan []*set.Token)
+var INTERROGATE = make(chan Client)
 var APPROVE = make(chan bool)
-var ADVANCE = make(chan []*set.Token)
 
 var CLIENTS = make(map[*websocket.Conn]*Player)
 
@@ -83,16 +83,7 @@ func socket(w http.ResponseWriter, r *http.Request) {
             log.Println(err)
             return
         }
-        client := Client{Conn: conn, Player: player}
-        INTERROGATE <- *tokens
-        if <-APPROVE {
-            player.Score++
-            MEMO <- client
-            ADVANCE <- *tokens
-        } else {
-            player.Score--
-            MEMO <- client
-        }
+        INTERROGATE <- Client{Conn: conn, Player: player, Tokens: *tokens}
     }
 }
 
@@ -164,10 +155,16 @@ func relay() {
         case conn := <-REMOVE:
             delete(CLIENTS, conn)
             broadcast(true)
-        case tokens := <-INTERROGATE:
-            APPROVE <- interrogate(tokens) && set.Validate(tokens)
-        case tokens := <-ADVANCE:
-            advance(tokens)
+        case client := <-INTERROGATE:
+            if interrogate(client.Tokens) {
+                if set.Validate(client.Tokens) {
+                    client.Player.Score++
+                    advance(client.Tokens)
+                } else {
+                    client.Player.Score--
+                }
+                CLIENTS[client.Conn] = client.Player
+            }
             broadcast(true)
         }
     }
