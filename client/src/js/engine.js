@@ -182,13 +182,13 @@ function remove(array, index) {
 }
 
 function equivalent(a, b) {
-    var aKeys = Object.getOwnPropertyNames(a);
-    var n = aKeys.length;
+    var keys = Object.getOwnPropertyNames(a);
+    var n = keys.length;
     if (n !== Object.getOwnPropertyNames(b).length) {
         return false;
     }
     for (var i = 0; i < n; i++) {
-        var key = aKeys[i];
+        var key = keys[i];
         if (a[key] !== b[key]) {
             return false;
         }
