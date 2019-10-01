@@ -27,7 +27,7 @@ type Frame struct {
     Tokens  []*set.Token `json:"tokens"`
 }
 
-var MEMO = make(chan Client)
+var INSERT = make(chan Client)
 var REMOVE = make(chan *websocket.Conn)
 var INTERROGATE = make(chan Client)
 var APPROVE = make(chan bool)
@@ -38,18 +38,9 @@ var TOKENS = set.Start(true)
 
 var LOOKUP = func() map[string]int {
     lookup := make(map[string]int)
-    lookup["0,0"] = 0
-    lookup["0,1"] = 1
-    lookup["0,2"] = 2
-    lookup["1,0"] = 3
-    lookup["1,1"] = 4
-    lookup["1,2"] = 5
-    lookup["2,0"] = 6
-    lookup["2,1"] = 7
-    lookup["2,2"] = 8
-    lookup["3,0"] = 9
-    lookup["3,1"] = 10
-    lookup["3,2"] = 11
+    for i, id := range set.IDS {
+        lookup[id] = i
+    }
     return lookup
 }()
 
@@ -75,7 +66,8 @@ func socket(w http.ResponseWriter, r *http.Request) {
         log.Println(err)
         return
     }
-    MEMO <- Client{Conn: conn, Player: player}
+    client := Client{Conn: conn, Player: player}
+    INSERT <- client
     for {
         tokens := &[]*set.Token{}
         if err := conn.ReadJSON(tokens); err != nil {
@@ -83,7 +75,8 @@ func socket(w http.ResponseWriter, r *http.Request) {
             log.Println(err)
             return
         }
-        INTERROGATE <- Client{Conn: conn, Player: player, Tokens: *tokens}
+        client.Tokens = *tokens
+        INTERROGATE <- client
     }
 }
 
@@ -149,7 +142,7 @@ func interrogate(tokens []*set.Token) bool {
 func relay() {
     for {
         select {
-        case client := <-MEMO:
+        case client := <-INSERT:
             CLIENTS[client.Conn] = client.Player
             broadcast(true)
         case conn := <-REMOVE:
