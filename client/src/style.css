@@ -59,9 +59,8 @@ table {
 #slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 22px;
-    height: 22px;
-    border-radius: 22px;
+    width: 15px;
+    height: 15px;
     background: var(--Color);
     cursor: pointer;
 }
