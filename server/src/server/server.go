@@ -30,7 +30,6 @@ type Frame struct {
 var INSERT = make(chan Client)
 var REMOVE = make(chan *websocket.Conn)
 var INTERROGATE = make(chan Client)
-var APPROVE = make(chan bool)
 
 var CLIENTS = make(map[*websocket.Conn]*Player)
 
