@@ -19,11 +19,7 @@ function randomColor() {
 }
 
 function inscribe(players) {
-    var html = "<tr><th>" +
-        "Name" +
-        "</th><th>" +
-        "Score" +
-        "</th></tr>";
+    var html = "<tr><th>Name</th><th>Score</th></tr>";
     players.sort(function(a, b) {
         return b.score - a.score;
     });
