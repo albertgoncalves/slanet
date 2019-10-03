@@ -78,6 +78,30 @@ var Y_TOKEN_TWO_TOP = THIRD_FRAME_HEIGHT - HALF_UNIT;
 var Y_TOKEN_TWO_BOTTOM = (THIRD_FRAME_HEIGHT * 2) - HALF_UNIT;
 var Y_TOKEN_ONE = Y_TOKEN_THREE_CENTER;
 
+var INTERLUDE = document.getElementById("interlude");
+var INTER_HEIGHT = INTERLUDE.offsetHeight - 50;
+var THIRD_INTER_HEIGHT = INTER_HEIGHT * (1 / 3);
+var TWO_THIRD_INTER_HEIGHT = THIRD_INTER_HEIGHT * 2;
+
+var INTER_UNIT = 25;
+var HALF_INTER_UNIT = INTER_UNIT / 2;
+var X_INTER_OFFSET = 150;
+
+var HALF_WIDTH = WIDTH / 2;
+
+var X_INTER_LEFT = X_INTER_OFFSET - HALF_INTER_UNIT;
+var X_INTER_CENTER = HALF_WIDTH - HALF_INTER_UNIT;
+var X_INTER_RIGHT = WIDTH - X_INTER_OFFSET - HALF_INTER_UNIT;
+
+var INTER_MARGIN = 20;
+
+var Y_INTER_THREE_TOP = INTER_MARGIN;
+var Y_INTER_THREE_CENTER = INTER_HEIGHT / 2;
+var Y_INTER_THREE_BOTTOM = INTER_HEIGHT - INTER_MARGIN;
+var Y_INTER_TWO_TOP = THIRD_INTER_HEIGHT;
+var Y_INTER_TWO_BOTTOM = TWO_THIRD_INTER_HEIGHT;
+var Y_INTER_ONE = Y_INTER_THREE_CENTER;
+
 var FRAME_ROUTER = {
     "0,0": {
         x: X_TOKEN_LEFT,
@@ -147,6 +171,21 @@ var FILL_ROUTER = {
     empty: empty,
 };
 
+var SET = [];
+var SET_ATTRIBUTES = {};
+
+var X_INTER_ROUTER = [
+    X_INTER_LEFT,
+    X_INTER_CENTER,
+    X_INTER_RIGHT,
+];
+
+var Y_INTER_ROUTER = [
+    [Y_INTER_ONE],
+    [Y_INTER_TWO_TOP, Y_INTER_TWO_BOTTOM],
+    [Y_INTER_THREE_TOP, Y_INTER_THREE_CENTER, Y_INTER_THREE_BOTTOM],
+];
+
 function randomHue() {
     return Math.floor(Math.random() * 359);
 }
@@ -206,22 +245,22 @@ function createSvg(id, payload) {
     document.getElementById(id).appendChild(svg);
 }
 
-function solid(attributes, color) {
+function solid(attributes, color, _) {
     attributes.push("style");
     attributes.push("fill: " + color.solid + ";");
 }
 
-function transparent(attributes, color) {
+function transparent(attributes, color, thickness) {
     attributes.push("stroke-width");
-    attributes.push(THICKNESS);
+    attributes.push(thickness);
     attributes.push("style");
     attributes.push("fill: " + color.transparent + "; stroke: " + color.solid +
                     ";");
 }
 
-function empty(attributes, color) {
+function empty(attributes, color, thickness) {
     attributes.push("stroke-width");
-    attributes.push(THICKNESS);
+    attributes.push(thickness);
     attributes.push("style");
     attributes.push("fill: none; stroke: " + color.solid + ";");
 }
@@ -305,7 +344,7 @@ function triangle(id, unit, x, y) {
 
 function drawFrame(callback, id, x, y) {
     var payload = rectangle(id, FRAME_WIDTH, FRAME_HEIGHT, x, y);
-    createSvg("canvas", payload);
+    createSvg("figureCanvas", payload);
     var target = document.getElementById(id);
     target.addEventListener("mouseenter", function(_) {
         if (STATE.hasOwnProperty(id)) {
@@ -361,10 +400,10 @@ function drawFrames(callback) {
     drawFrame(callback, "3,2", X_RIGHT, Y_BOTTOM);
 }
 
-function draw(id, unit, x, y, shape, fill, color) {
-    var payload = SHAPE_ROUTER[shape](id, unit, x, y);
-    FILL_ROUTER[fill](payload.attributes, TOKEN_COLOR[color]);
-    createSvg("canvas", payload);
+function draw(frameId, tokenId, unit, x, y, thickness, shape, fill, color) {
+    var payload = SHAPE_ROUTER[shape](tokenId, unit, x, y);
+    FILL_ROUTER[fill](payload.attributes, TOKEN_COLOR[color], thickness);
+    createSvg(frameId, payload);
 }
 
 function drawToken(token) {
@@ -375,8 +414,8 @@ function drawToken(token) {
     }
     var yOffset = Y_ROUTER[token.frequency - 1];
     for (var j = 0; j < token.frequency; j++) {
-        draw(ids[j], UNIT, route.x, route.y + yOffset[j], token.shape,
-             token.fill, token.color);
+        draw("figureCanvas", ids[j], UNIT, route.x, route.y + yOffset[j],
+             THICKNESS, token.shape, token.fill, token.color);
     }
     STATE[token.id] = {
         token: token,
@@ -425,6 +464,50 @@ function drawTokens(tokens) {
             deselect(id);
         } else if (successor.hasOwnProperty(id)) {
             drawToken(successor[id]);
+        }
+    }
+}
+
+function drawInterlude(tokens) {
+    var n = SET.length;
+    for (var i = 0; i < n; i++) {
+        document.getElementById(SET[i]).remove();
+    }
+    SET = [];
+    SET_ATTRIBUTES = {};
+    var id;
+    for (var j = 0; j < N; j++) {
+        var token = tokens[j];
+        var yOffset = Y_INTER_ROUTER[token.frequency - 1];
+        for (var k = 0; k < token.frequency; k++) {
+            id = "i-" + j.toString() + "," + k.toString();
+            draw("interludeCanvas", id, INTER_UNIT, X_INTER_ROUTER[j],
+                 yOffset[k], "3px", token.shape, token.fill, token.color);
+            SET.push(id);
+            SET_ATTRIBUTES[id] = {
+                fill: token.fill,
+                color: token.color,
+            };
+        }
+    }
+}
+
+function paintSet() {
+    var n = SET.length;
+    var target;
+    var fill;
+    var color;
+    for (var i = 0; i < n; i++) {
+        target = document.getElementById(SET[i]);
+        fill = SET_ATTRIBUTES[SET[i]].fill;
+        color = SET_ATTRIBUTES[SET[i]].color;
+        if (fill === "solid") {
+            target.style.fill = TOKEN_COLOR[color].solid;
+        } else if (fill === "transparent") {
+            target.style.fill = TOKEN_COLOR[color].transparent;
+            target.style.stroke = TOKEN_COLOR[color].solid;
+        } else if (fill === "empty") {
+            target.style.stroke = TOKEN_COLOR[color].solid;
         }
     }
 }
