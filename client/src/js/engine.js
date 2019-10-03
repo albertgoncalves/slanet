@@ -245,22 +245,22 @@ function createSvg(id, payload) {
     document.getElementById(id).appendChild(svg);
 }
 
-function solid(attributes, color) {
+function solid(attributes, color, _) {
     attributes.push("style");
     attributes.push("fill: " + color.solid + ";");
 }
 
-function transparent(attributes, color) {
+function transparent(attributes, color, thickness) {
     attributes.push("stroke-width");
-    attributes.push(THICKNESS);
+    attributes.push(thickness);
     attributes.push("style");
     attributes.push("fill: " + color.transparent + "; stroke: " + color.solid +
                     ";");
 }
 
-function empty(attributes, color) {
+function empty(attributes, color, thickness) {
     attributes.push("stroke-width");
-    attributes.push(THICKNESS);
+    attributes.push(thickness);
     attributes.push("style");
     attributes.push("fill: none; stroke: " + color.solid + ";");
 }
@@ -400,10 +400,10 @@ function drawFrames(callback) {
     drawFrame(callback, "3,2", X_RIGHT, Y_BOTTOM);
 }
 
-function draw(id, unit, x, y, shape, fill, color) {
-    var payload = SHAPE_ROUTER[shape](id, unit, x, y);
-    FILL_ROUTER[fill](payload.attributes, TOKEN_COLOR[color]);
-    createSvg("canvas", payload);
+function draw(frameId, tokenId, unit, x, y, thickness, shape, fill, color) {
+    var payload = SHAPE_ROUTER[shape](tokenId, unit, x, y);
+    FILL_ROUTER[fill](payload.attributes, TOKEN_COLOR[color], thickness);
+    createSvg(frameId, payload);
 }
 
 function drawToken(token) {
@@ -414,8 +414,8 @@ function drawToken(token) {
     }
     var yOffset = Y_ROUTER[token.frequency - 1];
     for (var j = 0; j < token.frequency; j++) {
-        draw(ids[j], UNIT, route.x, route.y + yOffset[j], token.shape,
-             token.fill, token.color);
+        draw("figureCanvas", ids[j], UNIT, route.x, route.y + yOffset[j],
+             THICKNESS, token.shape, token.fill, token.color);
     }
     STATE[token.id] = {
         token: token,
