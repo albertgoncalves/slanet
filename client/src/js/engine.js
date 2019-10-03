@@ -468,6 +468,50 @@ function drawTokens(tokens) {
     }
 }
 
+function drawInterlude(tokens) {
+    var n = SET.length;
+    for (var i = 0; i < n; i++) {
+        document.getElementById(SET[i]).remove();
+    }
+    SET = [];
+    SET_ATTRIBUTES = {};
+    var id;
+    for (var j = 0; j < N; j++) {
+        var token = tokens[j];
+        var yOffset = Y_INTER_ROUTER[token.frequency - 1];
+        for (var k = 0; k < token.frequency; k++) {
+            id = "i-" + j.toString() + "," + k.toString();
+            draw("interludeCanvas", id, INTER_UNIT, X_INTER_ROUTER[j],
+                 yOffset[k], "3px", token.shape, token.fill, token.color);
+            SET.push(id);
+            SET_ATTRIBUTES[id] = {
+                fill: token.fill,
+                color: token.color,
+            };
+        }
+    }
+}
+
+function paintSet() {
+    var n = SET.length;
+    var target;
+    var fill;
+    var color;
+    for (var i = 0; i < n; i++) {
+        target = document.getElementById(SET[i]);
+        fill = SET_ATTRIBUTES[SET[i]].fill;
+        color = SET_ATTRIBUTES[SET[i]].color;
+        if (fill === "solid") {
+            target.style.fill = TOKEN_COLOR[color].solid;
+        } else if (fill === "transparent") {
+            target.style.fill = TOKEN_COLOR[color].transparent;
+            target.style.stroke = TOKEN_COLOR[color].solid;
+        } else if (fill === "empty") {
+            target.style.stroke = TOKEN_COLOR[color].solid;
+        }
+    }
+}
+
 function paintTokens() {
     for (var i = 0; i < M; i++) {
         var id = TARGETS[i];

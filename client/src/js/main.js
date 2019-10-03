@@ -1,7 +1,7 @@
 "use strict";
 
-/*  global assignColors, drawFrames, drawTokens, HOST, paintTokens, PORT,
-        randomHue, RED, TOKEN_COLOR:true */
+/*  global assignColors, drawFrames, drawInterlude, drawTokens, HOST,
+        paintSet, paintTokens, PORT, randomHue, RED, TOKEN_COLOR:true, WIDTH */
 
 var LEDGER = document.getElementById("ledger");
 var NAME = document.getElementById("name");
@@ -97,7 +97,7 @@ window.addEventListener("load", function() {
             var name = NAME.value;
             var red = RED.toString();
             if (name != "") {
-                document.body.removeChild(LOBBY);
+                document.body.removeChild(document.getElementById("lobby"));
                 client(name);
                 NAME.onkeypress = null;
             }
@@ -110,6 +110,7 @@ window.addEventListener("load", function() {
                 var slider = document.getElementById("slider");
                 TOKEN_COLOR = assignColors(parseInt(slider.value), 10);
                 paintTokens();
+                paintSet();
                 setColor(document.getElementById("slider"),
                          slider.value.toString());
             };
