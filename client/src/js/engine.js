@@ -361,6 +361,12 @@ function drawFrames(callback) {
     drawFrame(callback, "3,2", X_RIGHT, Y_BOTTOM);
 }
 
+function draw(id, unit, x, y, shape, fill, color) {
+    var payload = SHAPE_ROUTER[shape](id, unit, x, y);
+    FILL_ROUTER[fill](payload.attributes, TOKEN_COLOR[color]);
+    createSvg("canvas", payload);
+}
+
 function drawToken(token) {
     var route = FRAME_ROUTER[token.id];
     var ids = new Array(token.frequency);
@@ -368,12 +374,9 @@ function drawToken(token) {
         ids[i] = token.id + "," + i.toString();
     }
     var yOffset = Y_ROUTER[token.frequency - 1];
-    var payload;
     for (var j = 0; j < token.frequency; j++) {
-        payload = SHAPE_ROUTER[token.shape](ids[j], UNIT, route.x,
-                                            route.y + yOffset[j]);
-        FILL_ROUTER[token.fill](payload.attributes, TOKEN_COLOR[token.color]);
-        createSvg("canvas", payload);
+        draw(ids[j], UNIT, route.x, route.y + yOffset[j], token.shape,
+             token.fill, token.color);
     }
     STATE[token.id] = {
         token: token,
