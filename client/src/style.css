@@ -9,6 +9,10 @@ div#figure {
     height: 715px;
 }
 
+div#interlude {
+    height: 150px;
+}
+
 svg {
     overflow: visible;
     height: 100%;

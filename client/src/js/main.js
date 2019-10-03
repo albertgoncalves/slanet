@@ -3,10 +3,7 @@
 /*  global assignColors, drawFrames, drawTokens, HOST, paintTokens, PORT,
         randomHue, RED, TOKEN_COLOR:true */
 
-var FIGURE = document.getElementById("figure");
-var BASE = document.getElementById("base");
 var LEDGER = document.getElementById("ledger");
-var LOBBY = document.getElementById("lobby");
 var NAME = document.getElementById("name");
 var SLIDER;
 var WEBSOCKET;
@@ -62,10 +59,14 @@ function client(name) {
         if (response.alive) {
             inscribe(response.players);
             drawTokens(response.tokens);
+            if (response.set != null) {
+                drawInterlude(response.set);
+            }
         } else {
             WEBSOCKET.close();
-            document.body.removeChild(FIGURE);
-            document.body.removeChild(BASE);
+            document.body.removeChild(document.getElementById("figure"));
+            document.body.removeChild(document.getElementById("interlude"));
+            document.body.removeChild(document.getElementById("base"));
             if (0 < response.players.length) {
                 var winners = winner(response.players);
                 var epilogue;

@@ -305,7 +305,7 @@ function triangle(id, unit, x, y) {
 
 function drawFrame(callback, id, x, y) {
     var payload = rectangle(id, FRAME_WIDTH, FRAME_HEIGHT, x, y);
-    createSvg("canvas", payload);
+    createSvg("figureCanvas", payload);
     var target = document.getElementById(id);
     target.addEventListener("mouseenter", function(_) {
         if (STATE.hasOwnProperty(id)) {
