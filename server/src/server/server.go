@@ -25,6 +25,7 @@ type Frame struct {
     Alive   bool         `json:"alive"`
     Players []*Player    `json:"players"`
     Tokens  []*set.Token `json:"tokens"`
+    Set     []*set.Token `json:"set"`
 }
 
 var INSERT = make(chan Client)
@@ -34,6 +35,7 @@ var INTERROGATE = make(chan Client)
 var CLIENTS = make(map[*websocket.Conn]*Player)
 
 var TOKENS = set.Start(true)
+var SET []*set.Token = nil
 
 var LOOKUP = func() map[string]int {
     lookup := make(map[string]int)
@@ -91,6 +93,7 @@ func broadcast(alive bool) {
             Alive:   alive,
             Players: players,
             Tokens:  TOKENS,
+            Set:     SET,
         }); err != nil {
             log.Println(err)
         }
@@ -151,9 +154,11 @@ func relay() {
             if interrogate(client.Tokens) {
                 if set.Validate(client.Tokens) {
                     client.Player.Score++
+                    SET = client.Tokens
                     advance(client.Tokens)
                 } else {
                     client.Player.Score--
+                    SET = nil
                 }
                 CLIENTS[client.Conn] = client.Player
             }
