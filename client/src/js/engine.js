@@ -492,23 +492,14 @@ function drawInterlude(tokens) {
     }
 }
 
-function paintSet() {
-    var n = SET.length;
-    var target;
-    var fill;
-    var color;
-    for (var i = 0; i < n; i++) {
-        target = document.getElementById(SET[i]);
-        fill = SET_ATTRIBUTES[SET[i]].fill;
-        color = SET_ATTRIBUTES[SET[i]].color;
-        if (fill === "solid") {
-            target.style.fill = TOKEN_COLOR[color].solid;
-        } else if (fill === "transparent") {
-            target.style.fill = TOKEN_COLOR[color].transparent;
-            target.style.stroke = TOKEN_COLOR[color].solid;
-        } else if (fill === "empty") {
-            target.style.stroke = TOKEN_COLOR[color].solid;
-        }
+function autoRoute(target, fill, color) {
+    if (fill === "solid") {
+        target.style.fill = TOKEN_COLOR[color].solid;
+    } else if (fill === "transparent") {
+        target.style.fill = TOKEN_COLOR[color].transparent;
+        target.style.stroke = TOKEN_COLOR[color].solid;
+    } else if (fill === "empty") {
+        target.style.stroke = TOKEN_COLOR[color].solid;
     }
 }
 
@@ -519,17 +510,21 @@ function paintTokens() {
             var token = STATE[id].token;
             var target;
             for (var j = 0; j < token.frequency; j++) {
-                target =
-                    document.getElementById(token.id + "," + j.toString());
-                if (token.fill === "solid") {
-                    target.style.fill = TOKEN_COLOR[token.color].solid;
-                } else if (token.fill === "transparent") {
-                    target.style.fill = TOKEN_COLOR[token.color].transparent;
-                    target.style.stroke = TOKEN_COLOR[token.color].solid;
-                } else if (token.fill === "empty") {
-                    target.style.stroke = TOKEN_COLOR[token.color].solid;
-                }
+                autoRoute(
+                    document.getElementById(token.id + "," + j.toString()),
+                    token.fill, token.color);
             }
         }
+    }
+}
+
+function paintSet() {
+    var n = SET.length;
+    var target;
+    var fill;
+    var color;
+    for (var i = 0; i < n; i++) {
+        autoRoute(document.getElementById(SET[i]), SET_ATTRIBUTES[SET[i]].fill,
+                  SET_ATTRIBUTES[SET[i]].color);
     }
 }
