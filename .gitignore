@@ -18,3 +18,4 @@ env.js
 !.tidyrc
 !.clang-format
 !main
+!lint
