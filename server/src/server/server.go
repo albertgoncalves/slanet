@@ -103,6 +103,7 @@ func broadcast(alive bool) {
 func gameOver() {
     broadcast(false)
     set.ALL_TOKENS = set.AllTokens()
+    SET = nil
 }
 
 func advance(tokens []*set.Token) {
