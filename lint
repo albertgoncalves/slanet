@@ -2,9 +2,10 @@
 
 set -e
 
+govets
+goall
+
 "$JSPATH/node_modules/jshint/bin/jshint" -c "$JSPATH/.jshintrc" \
     "$WD/client/src/js/engine.js" \
     "$WD/client/src/js/main.js"
-# jsfmts
-# govets
-# goall
+jsfmts
