@@ -400,7 +400,8 @@ function drawFrames(callback) {
     drawFrame(callback, "3,2", X_RIGHT, Y_BOTTOM);
 }
 
-function draw(frameId, tokenId, unit, x, y, thickness, shape, fill, color) {
+function autoDraw(frameId, tokenId, unit, x, y, thickness, shape, fill,
+                  color) {
     var payload = SHAPE_ROUTER[shape](tokenId, unit, x, y);
     FILL_ROUTER[fill](payload.attributes, TOKEN_COLOR[color], thickness);
     createSvg(frameId, payload);
@@ -414,8 +415,8 @@ function drawToken(token) {
     }
     var yOffset = Y_ROUTER[token.frequency - 1];
     for (var j = 0; j < token.frequency; j++) {
-        draw("figureCanvas", ids[j], UNIT, route.x, route.y + yOffset[j],
-             THICKNESS, token.shape, token.fill, token.color);
+        autoDraw("figureCanvas", ids[j], UNIT, route.x, route.y + yOffset[j],
+                 THICKNESS, token.shape, token.fill, token.color);
     }
     STATE[token.id] = {
         token: token,
@@ -481,8 +482,8 @@ function drawInterlude(tokens) {
         var yOffset = Y_INTER_ROUTER[token.frequency - 1];
         for (var k = 0; k < token.frequency; k++) {
             id = "i-" + j.toString() + "," + k.toString();
-            draw("interludeCanvas", id, INTER_UNIT, X_INTER_ROUTER[j],
-                 yOffset[k], "3px", token.shape, token.fill, token.color);
+            autoDraw("interludeCanvas", id, INTER_UNIT, X_INTER_ROUTER[j],
+                     yOffset[k], "3px", token.shape, token.fill, token.color);
             SET.push(id);
             SET_ATTRIBUTES[id] = {
                 fill: token.fill,
