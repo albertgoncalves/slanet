@@ -92,8 +92,9 @@ function setColor(element, hue) {
 }
 
 window.addEventListener("load", function() {
-    NAME.onkeypress = function(event) {
-        if (event.keyCode === 13) {
+    document.getElementById("form").addEventListener(
+        "submit", function(event) {
+            event.preventDefault();
             var name = NAME.value;
             var red = RED.toString();
             if (name != "") {
@@ -116,6 +117,5 @@ window.addEventListener("load", function() {
             };
             LEDGER.parentNode.insertBefore(SLIDER, LEDGER);
             setColor(document.getElementById("slider"), red);
-        }
-    };
+        });
 }, false);
