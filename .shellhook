@@ -20,12 +20,6 @@ GOPATH="$WD/server"
 JSPATH="$WD/client"
 PORT="8080"
 
-printf \
-    "\"use strict\";\n\nvar HOST = \"%s\";\nvar PORT = \"%s\";" \
-    "$HOST" \
-    $PORT \
-    > "$JSPATH/src/js/env.js"
-
 if [ ! -d "$GOPATH/bin" ]; then
     mkdir "$GOPATH/bin"
 fi
