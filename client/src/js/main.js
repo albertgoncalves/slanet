@@ -45,7 +45,7 @@ function winner(players) {
 }
 
 function client(name) {
-    WEBSOCKET = new WebSocket("ws://" + HOST + ":" + PORT + "/ws");
+    WEBSOCKET = new WebSocket("ws://" + window.location.host + "/ws");
     WEBSOCKET.onopen = function() {
         var payload = {name: name};
         WEBSOCKET.send(JSON.stringify(payload));
