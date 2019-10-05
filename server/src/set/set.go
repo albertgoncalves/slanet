@@ -162,7 +162,8 @@ func AnySolution(tokens []*Token, flag bool) bool {
         }) {
             if flag {
                 fmt.Printf(
-                    "%s\n%s\n%s\n\n",
+                    "len(ALL_TOKENS): %d\n%s\n%s\n%s\n\n",
+                    len(ALL_TOKENS),
                     pretty(tokens[indices[0]]),
                     pretty(tokens[indices[1]]),
                     pretty(tokens[indices[2]]),

@@ -21,6 +21,12 @@ type Client struct {
     Tokens []*set.Token
 }
 
+type Payload struct {
+    Flag    bool         `json:"flag"`
+    Tokens  []*set.Token `json:"tokens"`
+    Message string       `json:"message"`
+}
+
 type Frame struct {
     Alive   bool         `json:"alive"`
     Players []*Player    `json:"players"`
@@ -28,9 +34,16 @@ type Frame struct {
     Set     []*set.Token `json:"set"`
 }
 
+type Response struct {
+    Flag    bool   `json:"flag"`
+    Frame   Frame  `json:"frame"`
+    Message string `json:"message"`
+}
+
 var INSERT = make(chan Client)
 var REMOVE = make(chan *websocket.Conn)
 var INTERROGATE = make(chan Client)
+var CHAT = make(chan string)
 
 var CLIENTS = make(map[*websocket.Conn]*Player)
 
@@ -70,18 +83,22 @@ func socket(w http.ResponseWriter, r *http.Request) {
     client := Client{Conn: conn, Player: player}
     INSERT <- client
     for {
-        tokens := &[]*set.Token{}
-        if err := conn.ReadJSON(tokens); err != nil {
+        payload := &Payload{}
+        if err := conn.ReadJSON(payload); err != nil {
             REMOVE <- conn
             log.Println(err)
             return
         }
-        client.Tokens = *tokens
-        INTERROGATE <- client
+        if payload.Flag {
+            client.Tokens = payload.Tokens
+            INTERROGATE <- client
+        } else {
+            CHAT <- payload.Message
+        }
     }
 }
 
-func broadcast(alive bool) {
+func broadcastFrame(alive bool) {
     var players = make([]*Player, len(CLIENTS))
     i := 0
     for _, player := range CLIENTS {
@@ -89,11 +106,25 @@ func broadcast(alive bool) {
         i++
     }
     for conn := range CLIENTS {
-        if err := conn.WriteJSON(Frame{
-            Alive:   alive,
-            Players: players,
-            Tokens:  TOKENS,
-            Set:     SET,
+        if err := conn.WriteJSON(Response{
+            Flag: true,
+            Frame: Frame{
+                Alive:   alive,
+                Players: players,
+                Tokens:  TOKENS,
+                Set:     SET,
+            },
+        }); err != nil {
+            log.Println(err)
+        }
+    }
+}
+
+func broadcastChat(message string) {
+    for conn := range CLIENTS {
+        if err := conn.WriteJSON(Response{
+            Flag:    false,
+            Message: message,
         }); err != nil {
             log.Println(err)
         }
@@ -101,7 +132,7 @@ func broadcast(alive bool) {
 }
 
 func gameOver() {
-    broadcast(false)
+    broadcastFrame(false)
     set.ALL_TOKENS = set.AllTokens()
     SET = nil
 }
@@ -147,10 +178,10 @@ func relay() {
         select {
         case client := <-INSERT:
             CLIENTS[client.Conn] = client.Player
-            broadcast(true)
+            broadcastFrame(true)
         case conn := <-REMOVE:
             delete(CLIENTS, conn)
-            broadcast(true)
+            broadcastFrame(true)
         case client := <-INTERROGATE:
             if interrogate(client.Tokens) {
                 if set.Validate(client.Tokens) {
@@ -163,7 +194,9 @@ func relay() {
                 }
                 CLIENTS[client.Conn] = client.Player
             }
-            broadcast(true)
+            broadcastFrame(true)
+        case message := <-CHAT:
+            broadcastChat(message)
         }
     }
 }

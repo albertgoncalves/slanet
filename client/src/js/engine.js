@@ -374,7 +374,11 @@ function drawFrame(callback, id, x, y) {
         SELECTION.push(STATE[id].token);
         n = SELECTION.length;
         if (N <= n) {
-            callback(SELECTION);
+            callback({
+                flag: true,
+                tokens: SELECTION,
+                message: "",
+            });
             for (var j = 0; j < n; j++) {
                 target = document.getElementById(SELECTION[j].id);
                 target.style.fill = "none";

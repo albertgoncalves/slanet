@@ -49,37 +49,43 @@ function client(name) {
     WEBSOCKET.onopen = function() {
         var payload = {name: name};
         WEBSOCKET.send(JSON.stringify(payload));
-        drawFrames(function(selection) {
-            WEBSOCKET.send(JSON.stringify(selection));
+        drawFrames(function(payload) {
+            WEBSOCKET.send(JSON.stringify(payload));
         });
     };
     WEBSOCKET.onclose = function() {};
     WEBSOCKET.onmessage = function(payload) {
         var response = JSON.parse(payload.data);
-        if (response.alive) {
-            inscribe(response.players);
-            drawTokens(response.tokens);
-            if (response.set != null) {
-                drawInterlude(response.set);
+        if (response.flag) {
+            var frame = response.frame;
+            if (frame.alive) {
+                inscribe(frame.players);
+                drawTokens(frame.tokens);
+                if (frame.set != null) {
+                    drawInterlude(frame.set);
+                }
+            } else {
+                WEBSOCKET.close();
+                document.body.removeChild(document.getElementById("figure"));
+                document.body.removeChild(
+                    document.getElementById("interlude"));
+                document.body.removeChild(document.getElementById("base"));
+                if (0 < frame.players.length) {
+                    var winners = winner(frame.players);
+                    var epilogue;
+                    if (1 < winners.length) {
+                        epilogue = "the winners are ";
+                    } else {
+                        epilogue = "the winner is ";
+                    }
+                    document.body.innerHTML +=
+                        "<div id=\"lobby\"><p id=\"text\">" + epilogue +
+                        "<strong>" + winners.join("</strong> & <strong>") +
+                        "</strong>, refresh page to play again</p></div>";
+                }
             }
         } else {
-            WEBSOCKET.close();
-            document.body.removeChild(document.getElementById("figure"));
-            document.body.removeChild(document.getElementById("interlude"));
-            document.body.removeChild(document.getElementById("base"));
-            if (0 < response.players.length) {
-                var winners = winner(response.players);
-                var epilogue;
-                if (1 < winners.length) {
-                    epilogue = "the winners are ";
-                } else {
-                    epilogue = "the winner is ";
-                }
-                document.body.innerHTML +=
-                    "<div id=\"lobby\"><p id=\"text\">" + epilogue +
-                    "<strong>" + winners.join("</strong> & <strong>") +
-                    "</strong>, refresh page to play again</p></div>";
-            }
+            console.log(response.message);
         }
     };
     WEBSOCKET.onerror = function(error) {
