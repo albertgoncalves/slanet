@@ -20,7 +20,7 @@ var TARGETS = [
     "3,2",
 ];
 
-var THICKNESS = "5px";
+var THICKNESS = "3px";
 
 var RED = randomHue();
 var TOKEN_COLOR = assignColors(RED);
@@ -42,15 +42,15 @@ var TWO_THIRD_WIDTH = THIRD_WIDTH * 2;
 
 var HEIGHT = FIGURE.offsetHeight;
 
-var FRAME_WIDTH = 150;
+var FRAME_WIDTH = 95;
 var HALF_FRAME_WIDTH = FRAME_WIDTH / 2;
 
-var FRAME_HEIGHT = 200;
+var FRAME_HEIGHT = 120;
 var HALF_FRAME_HEIGHT = FRAME_HEIGHT / 2;
 
 var THIRD_FRAME_HEIGHT = FRAME_HEIGHT / 3;
 
-var MARGIN = 15;
+var MARGIN = 7.5;
 var X_OFFSET = 20;
 var Y_OFFSET = 43;
 
@@ -63,7 +63,7 @@ var Y_TOP = Y_OFFSET;
 var Y_CENTER = (HEIGHT / 2) - HALF_FRAME_HEIGHT;
 var Y_BOTTOM = HEIGHT - Y_OFFSET - FRAME_HEIGHT;
 
-var UNIT = 50;
+var UNIT = 30;
 var HALF_UNIT = UNIT / 2;
 
 var X_TOKEN_LEFT = -HALF_UNIT;
@@ -83,15 +83,16 @@ var INTER_HEIGHT = INTERLUDE.offsetHeight - 50;
 var THIRD_INTER_HEIGHT = INTER_HEIGHT * (1 / 3);
 var TWO_THIRD_INTER_HEIGHT = THIRD_INTER_HEIGHT * 2;
 
-var INTER_UNIT = 25;
-var HALF_INTER_UNIT = INTER_UNIT / 2;
-var X_INTER_OFFSET = 150;
+var INTER_WIDTH = INTERLUDE.offsetWidth;
+var HALF_INTER_WIDTH = INTER_WIDTH / 2;
 
-var HALF_WIDTH = WIDTH / 2;
+var INTER_UNIT = 20;
+var HALF_INTER_UNIT = INTER_UNIT / 2;
+var X_INTER_OFFSET = 235;
 
 var X_INTER_LEFT = X_INTER_OFFSET - HALF_INTER_UNIT;
-var X_INTER_CENTER = HALF_WIDTH - HALF_INTER_UNIT;
-var X_INTER_RIGHT = WIDTH - X_INTER_OFFSET - HALF_INTER_UNIT;
+var X_INTER_CENTER = HALF_INTER_WIDTH - HALF_INTER_UNIT;
+var X_INTER_RIGHT = INTER_WIDTH - X_INTER_OFFSET - HALF_INTER_UNIT;
 
 var INTER_MARGIN = 20;
 
@@ -487,7 +488,8 @@ function drawInterlude(tokens) {
         for (var k = 0; k < token.frequency; k++) {
             id = "i-" + j.toString() + "," + k.toString();
             autoDraw("interludeCanvas", id, INTER_UNIT, X_INTER_ROUTER[j],
-                     yOffset[k], "3px", token.shape, token.fill, token.color);
+                     yOffset[k] + HALF_INTER_UNIT, "2.25px", token.shape,
+                     token.fill, token.color);
             SET.push(id);
             SET_ATTRIBUTES[id] = {
                 fill: token.fill,
