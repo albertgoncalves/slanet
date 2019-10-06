@@ -190,7 +190,6 @@ func relay() {
                     advance(client.Tokens)
                 } else {
                     client.Player.Score--
-                    SET = nil
                 }
                 CLIENTS[client.Conn] = client.Player
             }
