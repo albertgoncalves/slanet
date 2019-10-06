@@ -82,9 +82,11 @@ function client(name) {
                 }
             } else {
                 WEBSOCKET.close();
-                document.body.removeChild(document.getElementById("figure"));
                 document.body.removeChild(INTERLUDE);
+                document.body.removeChild(document.getElementById("figure"));
                 document.body.removeChild(document.getElementById("base"));
+                var slider = document.getElementById("slider");
+                slider.parentNode.removeChild(slider);
                 if (0 < frame.players.length) {
                     var winners = winner(frame.players);
                     var epilogue;
