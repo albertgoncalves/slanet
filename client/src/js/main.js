@@ -3,6 +3,7 @@
 /*  global assignColors, drawFrames, drawInterlude, drawTokens, HOST,
         paintSet, paintTokens, PORT, randomHue, RED, TOKEN_COLOR:true, WIDTH */
 
+var INTERLUDE = document.getElementById("interlude");
 var LEDGER = document.getElementById("ledger");
 var NAME = document.getElementById("name");
 var SLIDER;
@@ -67,8 +68,7 @@ function client(name) {
             } else {
                 WEBSOCKET.close();
                 document.body.removeChild(document.getElementById("figure"));
-                document.body.removeChild(
-                    document.getElementById("interlude"));
+                document.body.removeChild(INTERLUDE);
                 document.body.removeChild(document.getElementById("base"));
                 if (0 < frame.players.length) {
                     var winners = winner(frame.players);
@@ -121,7 +121,7 @@ window.addEventListener("load", function() {
                 setColor(document.getElementById("slider"),
                          slider.value.toString());
             };
-            LEDGER.parentNode.insertBefore(SLIDER, LEDGER);
+            INTERLUDE.parentNode.insertBefore(SLIDER, INTERLUDE);
             setColor(document.getElementById("slider"), red);
         });
 }, false);
