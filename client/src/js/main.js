@@ -124,8 +124,8 @@ window.addEventListener("load", function() {
     document.getElementById("nameForm")
         .addEventListener("submit", function(event) {
             event.preventDefault();
-            var name = NAME_INPUT.value;
-            if (name.length < 14) {
+            var name = NAME_INPUT.value.replace(RE, "");
+            if ((0 < name.length) && (name.length < 14)) {
                 var red = RED.toString();
                 if (name != "") {
                     document.body.removeChild(
@@ -150,9 +150,14 @@ window.addEventListener("load", function() {
                 setColor(document.getElementById("slider"), red);
             } else {
                 NAME_INPUT.value = "";
-                document.getElementById("text").innerHTML =
-                    "try something else, " +
-                    "that <strong>name</strong> is too long";
+                if (0 < name.length) {
+                    document.getElementById("text").innerHTML =
+                        "try something else, " +
+                        "that <strong>name</strong> is too long";
+                } else {
+                    document.getElementById("text").innerHTML =
+                        "try something else";
+                }
             }
         });
 }, false);
