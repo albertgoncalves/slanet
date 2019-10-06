@@ -10,10 +10,12 @@ div#figure {
     width: 325px;
     height: 475px;
     margin-left: 125px;
+    margin-bottom: 20px;
 }
 
 div#interlude {
     height: 150px;
+    margin-bottom: 10px;
 }
 
 .outline {
@@ -56,6 +58,19 @@ div.center {
 #chat {
     margin-left: 5px;
     float: right
+}
+
+#history {
+    margin: 0px;
+    height: 115px;
+}
+
+#chatInput {
+    width: 80%;
+}
+
+#chatSubmit {
+    float: right;
 }
 
 table {
