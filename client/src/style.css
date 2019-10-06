@@ -1,6 +1,6 @@
 body {
     font-family: Courier New, monospace;
-    font-size: 16px;
+    font-size: 13px;
     margin: auto;
     width: 600px;
     margin-bottom: 500px;
@@ -19,9 +19,7 @@ div#interlude {
 }
 
 .outline {
-    border: dashed;
-    border-width: 1px;
-    border-color: gray;
+    padding: 10px;
 }
 
 svg {
@@ -47,7 +45,7 @@ div.center {
 }
 
 .column {
-    width: 290px;
+    width: 280px;
 }
 
 #ledger {
@@ -62,11 +60,15 @@ div.center {
 
 #history {
     margin: 0px;
-    height: 115px;
+    height: 130px;
 }
 
 #chatInput {
     width: 80%;
+}
+
+#chatForm {
+    opacity: 0;
 }
 
 #chatSubmit {

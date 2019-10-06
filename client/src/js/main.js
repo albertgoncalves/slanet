@@ -3,13 +3,14 @@
 /*  global assignColors, drawFrames, drawInterlude, drawTokens, HOST,
         paintSet, paintTokens, PORT, randomHue, RED, TOKEN_COLOR:true, WIDTH */
 
+var CHAT_INPUT = document.getElementById("chatInput");
 var HISTORY = document.getElementById("history");
 var INTERLUDE = document.getElementById("interlude");
 var LEDGER = document.getElementById("ledger");
-var CHAT_INPUT = document.getElementById("chatInput");
 var NAME_INPUT = document.getElementById("nameInput");
+var RE = /[^0-9a-zA-Z ]/g;
 var SLIDER;
-var THRESHOLD = 6;
+var THRESHOLD = 8;
 var WEBSOCKET;
 
 function randomColor() {
@@ -56,6 +57,7 @@ function client(name) {
         drawFrames(function(payload) {
             WEBSOCKET.send(JSON.stringify(payload));
         });
+        document.getElementById("chatForm").style.opacity = 1;
         document.getElementById("chatForm")
             .addEventListener("submit", function(event) {
                 event.preventDefault();
