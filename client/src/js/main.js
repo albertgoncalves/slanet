@@ -3,10 +3,13 @@
 /*  global assignColors, drawFrames, drawInterlude, drawTokens, HOST,
         paintSet, paintTokens, PORT, randomHue, RED, TOKEN_COLOR:true, WIDTH */
 
+var HISTORY = document.getElementById("history");
 var INTERLUDE = document.getElementById("interlude");
 var LEDGER = document.getElementById("ledger");
-var NAME = document.getElementById("name");
+var CHAT_INPUT = document.getElementById("chatInput");
+var NAME_INPUT = document.getElementById("nameInput");
 var SLIDER;
+var THRESHOLD = 6;
 var WEBSOCKET;
 
 function randomColor() {
@@ -53,6 +56,16 @@ function client(name) {
         drawFrames(function(payload) {
             WEBSOCKET.send(JSON.stringify(payload));
         });
+        document.getElementById("chatForm")
+            .addEventListener("submit", function(event) {
+                event.preventDefault();
+                var message = CHAT_INPUT.value;
+                WEBSOCKET.send(JSON.stringify({
+                    flag: false,
+                    message: message,
+                }));
+                CHAT_INPUT.value = "";
+            });
     };
     WEBSOCKET.onclose = function() {};
     WEBSOCKET.onmessage = function(payload) {
@@ -85,7 +98,15 @@ function client(name) {
                 }
             }
         } else {
-            console.log(response.message);
+            var messages = HISTORY.innerHTML.split("\n");
+            messages.push(response.message);
+            if (messages[0] == "") {
+                messages.shift();
+            }
+            if (THRESHOLD < messages.length) {
+                messages.shift();
+            }
+            HISTORY.innerHTML = messages.join("\n");
         }
     };
     WEBSOCKET.onerror = function(error) {
@@ -98,17 +119,17 @@ function setColor(element, hue) {
 }
 
 window.addEventListener("load", function() {
-    document.getElementById("form").addEventListener(
-        "submit", function(event) {
+    document.getElementById("nameForm")
+        .addEventListener("submit", function(event) {
             event.preventDefault();
-            var name = NAME.value;
+            var name = NAME_INPUT.value;
             if (name.length < 14) {
                 var red = RED.toString();
                 if (name != "") {
                     document.body.removeChild(
                         document.getElementById("lobby"));
                     client(name);
-                    NAME.onkeypress = null;
+                    NAME_INPUT.onkeypress = null;
                 }
                 SLIDER = document.createElement("div");
                 SLIDER.className = "center";
@@ -126,7 +147,7 @@ window.addEventListener("load", function() {
                 INTERLUDE.parentNode.insertBefore(SLIDER, INTERLUDE);
                 setColor(document.getElementById("slider"), red);
             } else {
-                NAME.value = "";
+                NAME_INPUT.value = "";
                 document.getElementById("text").innerHTML =
                     "try something else, " +
                     "that <strong>name</strong> is too long";
