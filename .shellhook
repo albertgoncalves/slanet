@@ -9,7 +9,7 @@ export PORT
 if [ "$(uname -s)" = "Darwin" ]; then
     alias ls="ls --color=auto"
     alias ll="ls -l"
-    HOST=$(ipconfig getifaddr en1)
+    HOST=$(ipconfig getifaddr en0)
 else
     alias open="xdg-open"
     HOST=$(hostname -I | cut -d " " -f 1)
