@@ -6,6 +6,7 @@ import (
     "log"
     "net"
     "net/http"
+    "regexp"
     "set"
 )
 
@@ -58,6 +59,8 @@ var LOOKUP = func() map[string]int {
     return lookup
 }()
 
+var RE, _ = regexp.Compile("[^0-9a-zA-Z ]")
+
 func address(conn *websocket.Conn) uint16 {
     return uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
 }
@@ -93,7 +96,11 @@ func socket(w http.ResponseWriter, r *http.Request) {
             client.Tokens = payload.Tokens
             INTERROGATE <- client
         } else {
-            CHAT <- payload.Message
+            CHAT <- fmt.Sprintf(
+                "<em>%s</em>: %s",
+                player.Name,
+                RE.ReplaceAllString(payload.Message, ""),
+            )
         }
     }
 }
