@@ -102,26 +102,34 @@ window.addEventListener("load", function() {
         "submit", function(event) {
             event.preventDefault();
             var name = NAME.value;
-            var red = RED.toString();
-            if (name != "") {
-                document.body.removeChild(document.getElementById("lobby"));
-                client(name);
-                NAME.onkeypress = null;
+            if (name.length < 14) {
+                var red = RED.toString();
+                if (name != "") {
+                    document.body.removeChild(
+                        document.getElementById("lobby"));
+                    client(name);
+                    NAME.onkeypress = null;
+                }
+                SLIDER = document.createElement("div");
+                SLIDER.className = "center";
+                SLIDER.innerHTML +=
+                    "<input type=\"range\" min=\"0\" max=\"359\" value=\"" +
+                    red + "\" id=\"slider\">";
+                SLIDER.oninput = function() {
+                    var slider = document.getElementById("slider");
+                    TOKEN_COLOR = assignColors(parseInt(slider.value), 10);
+                    paintTokens();
+                    paintSet();
+                    setColor(document.getElementById("slider"),
+                             slider.value.toString());
+                };
+                INTERLUDE.parentNode.insertBefore(SLIDER, INTERLUDE);
+                setColor(document.getElementById("slider"), red);
+            } else {
+                NAME.value = "";
+                document.getElementById("text").innerHTML =
+                    "try something else, " +
+                    "that <strong>name</strong> is too long";
             }
-            SLIDER = document.createElement("div");
-            SLIDER.className = "center";
-            SLIDER.innerHTML +=
-                "<input type=\"range\" min=\"0\" max=\"359\" value=\"" + red +
-                "\" id=\"slider\">";
-            SLIDER.oninput = function() {
-                var slider = document.getElementById("slider");
-                TOKEN_COLOR = assignColors(parseInt(slider.value), 10);
-                paintTokens();
-                paintSet();
-                setColor(document.getElementById("slider"),
-                         slider.value.toString());
-            };
-            INTERLUDE.parentNode.insertBefore(SLIDER, INTERLUDE);
-            setColor(document.getElementById("slider"), red);
         });
 }, false);
