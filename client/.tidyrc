@@ -15,7 +15,7 @@ css-prefix: c
 custom-tags: no
 decorate-inferred-ul: no
 doctype: auto
-drop-empty-elements: yes
+drop-empty-elements: no
 drop-empty-paras: yes
 drop-proprietary-attributes: no
 enclose-block-text: no
@@ -89,7 +89,7 @@ uppercase-tags: no
 vertical-space: no
 warn-proprietary-attributes: yes
 word-2000: no
-wrap: 0
+wrap: 79
 wrap-asp: yes
 wrap-attributes: no
 wrap-jste: yes

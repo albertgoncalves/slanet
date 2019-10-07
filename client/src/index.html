@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.6.0">
+        <meta name="generator" content=
+        "HTML Tidy for HTML5 for Linux version 5.6.0">
         <meta charset="utf-8">
         <link rel="stylesheet" href="style.css">
         <link rel="shortcut icon" href="#">
@@ -10,8 +11,9 @@
     <body>
         <div id="lobby">
             <div class="center">
-                <form id="form" name="form">
-                    <input id="name" type="text"> <input type="submit" value="Enter">
+                <form id="nameForm" name="nameForm">
+                    <input id="nameInput" type="text"> <input type="submit"
+                    value="Enter">
                 </form>
             </div>
             <p id="text">
@@ -25,7 +27,14 @@
             <svg id="interludeCanvas"></svg>
         </div>
         <div id="base">
-            <table id="ledger"></table>
+            <table id="ledger" class="column"></table>
+            <div id="chat" class="column outline">
+                <pre id="history"></pre>
+                <form id="chatForm" name="chatForm">
+                    <input id="chatInput" type="text"> <input id="chatSubmit"
+                    type="submit" value="Enter">
+                </form>
+            </div>
         </div>
         <script src="js/engine.js"></script>
         <script src="js/main.js"></script>

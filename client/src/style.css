@@ -1,17 +1,25 @@
 body {
     font-family: Courier New, monospace;
-    font-size: 16px;
+    font-size: 13px;
     margin: auto;
-    width: 500px;
-    margin-bottom: 50px;
+    width: 600px;
+    margin-bottom: 500px;
 }
 
 div#figure {
-    height: 715px;
+    width: 325px;
+    height: 475px;
+    margin-left: 125px;
+    margin-bottom: 20px;
 }
 
 div#interlude {
     height: 150px;
+    margin-bottom: 10px;
+}
+
+.outline {
+    padding: 10px;
 }
 
 svg {
@@ -36,25 +44,52 @@ div.center {
     margin-bottom: 20px;
 }
 
+.column {
+    width: 280px;
+}
+
+#ledger {
+    margin-right: 5px;
+    float: left;
+}
+
+#chat {
+    margin-left: 5px;
+    float: right
+}
+
+#history {
+    margin: 0px;
+    height: 130px;
+}
+
+#chatInput {
+    width: 80%;
+}
+
+#chatForm {
+    opacity: 0;
+}
+
+#chatSubmit {
+    float: right;
+}
+
 table {
     border-collapse: collapse;
     text-align: center;
-    margin-left: 10%;
-    margin-right: 10%;
-    width: 80%;
-    padding: 4px;
+    width: 100%;
 }
 
 #slider {
     -webkit-appearance: none;
-    margin-left: 10%;
-    margin-right: 10%;
-    width: 80%;
+    width: 100%;
     height: 4px;
     --Color: hsl(0, 0%, 0%);
     background: var(--Color);
     outline: none;
     opacity: 0.7;
+    margin: 0px;
 }
 
 #slider:hover {

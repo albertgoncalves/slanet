@@ -3,17 +3,15 @@
 /*  global assignColors, drawFrames, drawInterlude, drawTokens, HOST,
         paintSet, paintTokens, PORT, randomHue, RED, TOKEN_COLOR:true, WIDTH */
 
+var CHAT_INPUT = document.getElementById("chatInput");
+var HISTORY = document.getElementById("history");
+var INTERLUDE = document.getElementById("interlude");
 var LEDGER = document.getElementById("ledger");
-var NAME = document.getElementById("name");
+var NAME_INPUT = document.getElementById("nameInput");
+var RE = /[^0-9a-zA-Z ]/g;
 var SLIDER;
+var THRESHOLD = 8;
 var WEBSOCKET;
-
-function randomColor() {
-    return "hsla(" + randomHue().toString() + ", " +
-        (Math.floor(Math.random() * 25) + 75).toString() + "%, " +
-        (Math.floor(Math.random() * 25) + 50).toString() + "%, " +
-        ((Math.random() * 0.2) + 0.1).toString() + ")";
-}
 
 function inscribe(players) {
     var html = "<tr><th>Name</th><th>Score</th></tr>";
@@ -23,8 +21,9 @@ function inscribe(players) {
     var n = players.length;
     for (var i = 0; i < n; i++) {
         var player = players[i];
-        html += "<tr style=\"background:" + randomColor() + ";\"><td>" +
-            player.name + "</td><td>" + player.score + "</td></tr>";
+        html += "<tr style=\"font-weight: bold; color: white; background:" +
+            player.color + ";\"><td>" + player.name + "</td><td>" +
+            player.score + "</td></tr>";
     }
     LEDGER.innerHTML = html;
 }
@@ -52,6 +51,17 @@ function client(name) {
         drawFrames(function(payload) {
             WEBSOCKET.send(JSON.stringify(payload));
         });
+        document.getElementById("chatForm").style.opacity = 1;
+        document.getElementById("chatForm")
+            .addEventListener("submit", function(event) {
+                event.preventDefault();
+                var message = CHAT_INPUT.value;
+                WEBSOCKET.send(JSON.stringify({
+                    flag: false,
+                    message: message,
+                }));
+                CHAT_INPUT.value = "";
+            });
     };
     WEBSOCKET.onclose = function() {};
     WEBSOCKET.onmessage = function(payload) {
@@ -66,10 +76,11 @@ function client(name) {
                 }
             } else {
                 WEBSOCKET.close();
+                document.body.removeChild(INTERLUDE);
                 document.body.removeChild(document.getElementById("figure"));
-                document.body.removeChild(
-                    document.getElementById("interlude"));
                 document.body.removeChild(document.getElementById("base"));
+                var slider = document.getElementById("slider");
+                slider.parentNode.removeChild(slider);
                 if (0 < frame.players.length) {
                     var winners = winner(frame.players);
                     var epilogue;
@@ -85,7 +96,15 @@ function client(name) {
                 }
             }
         } else {
-            console.log(response.message);
+            var messages = HISTORY.innerHTML.split("\n");
+            messages.push(response.message);
+            if (messages[0] == "") {
+                messages.shift();
+            }
+            if (THRESHOLD < messages.length) {
+                messages.shift();
+            }
+            HISTORY.innerHTML = messages.join("\n");
         }
     };
     WEBSOCKET.onerror = function(error) {
@@ -98,30 +117,43 @@ function setColor(element, hue) {
 }
 
 window.addEventListener("load", function() {
-    document.getElementById("form").addEventListener(
-        "submit", function(event) {
+    document.getElementById("nameForm")
+        .addEventListener("submit", function(event) {
             event.preventDefault();
-            var name = NAME.value;
-            var red = RED.toString();
-            if (name != "") {
-                document.body.removeChild(document.getElementById("lobby"));
-                client(name);
-                NAME.onkeypress = null;
+            var name = NAME_INPUT.value.replace(RE, "");
+            if ((0 < name.length) && (name.length < 14)) {
+                var red = RED.toString();
+                if (name != "") {
+                    document.body.removeChild(
+                        document.getElementById("lobby"));
+                    client(name);
+                    NAME_INPUT.onkeypress = null;
+                }
+                SLIDER = document.createElement("div");
+                SLIDER.className = "center";
+                SLIDER.innerHTML +=
+                    "<input type=\"range\" min=\"0\" max=\"359\" value=\"" +
+                    red + "\" id=\"slider\">";
+                SLIDER.oninput = function() {
+                    var slider = document.getElementById("slider");
+                    TOKEN_COLOR = assignColors(parseInt(slider.value), 10);
+                    paintTokens();
+                    paintSet();
+                    setColor(document.getElementById("slider"),
+                             slider.value.toString());
+                };
+                INTERLUDE.parentNode.insertBefore(SLIDER, INTERLUDE);
+                setColor(document.getElementById("slider"), red);
+            } else {
+                NAME_INPUT.value = "";
+                if (0 < name.length) {
+                    document.getElementById("text").innerHTML =
+                        "try something else, " +
+                        "that <strong>name</strong> is too long";
+                } else {
+                    document.getElementById("text").innerHTML =
+                        "try something else";
+                }
             }
-            SLIDER = document.createElement("div");
-            SLIDER.className = "center";
-            SLIDER.innerHTML +=
-                "<input type=\"range\" min=\"0\" max=\"359\" value=\"" + red +
-                "\" id=\"slider\">";
-            SLIDER.oninput = function() {
-                var slider = document.getElementById("slider");
-                TOKEN_COLOR = assignColors(parseInt(slider.value), 10);
-                paintTokens();
-                paintSet();
-                setColor(document.getElementById("slider"),
-                         slider.value.toString());
-            };
-            LEDGER.parentNode.insertBefore(SLIDER, LEDGER);
-            setColor(document.getElementById("slider"), red);
         });
 }, false);
