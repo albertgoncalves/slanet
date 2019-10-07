@@ -4,6 +4,7 @@ import (
     "fmt"
     "github.com/gorilla/websocket"
     "log"
+    "math/rand"
     "net"
     "net/http"
     "regexp"
@@ -14,6 +15,7 @@ type Player struct {
     Name    string `json:"name"`
     Score   int    `json:"score"`
     Address uint16 `json:"address"`
+    Color   string `json:"color"`
 }
 
 type Client struct {
@@ -59,7 +61,10 @@ var LOOKUP = func() map[string]int {
     return lookup
 }()
 
-var RE, _ = regexp.Compile("[^0-9a-zA-Z ]")
+var RE, _ = regexp.Compile("[^0-9a-zA-Z.,? ]")
+var SPAN = `<span style=` +
+    `"color: white; background-color: %s; opacity: 0.75;"` +
+    `> %s </span> %s`
 
 func address(conn *websocket.Conn) uint16 {
     return uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
@@ -71,6 +76,10 @@ var upgrader = websocket.Upgrader{
     CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
+func randomHsl() string {
+    return fmt.Sprintf("hsl(%d, %d%%, %d%%)", rand.Intn(360), 50, 50)
+}
+
 func socket(w http.ResponseWriter, r *http.Request) {
     conn, err := upgrader.Upgrade(w, r, nil)
     if err != nil {
@@ -78,7 +87,7 @@ func socket(w http.ResponseWriter, r *http.Request) {
         return
     }
     defer conn.Close()
-    player := &Player{Score: 0, Address: address(conn)}
+    player := &Player{Score: 0, Address: address(conn), Color: randomHsl()}
     if err := conn.ReadJSON(player); err != nil {
         log.Println(err)
         return
@@ -97,7 +106,8 @@ func socket(w http.ResponseWriter, r *http.Request) {
             INTERROGATE <- client
         } else {
             CHAT <- fmt.Sprintf(
-                "<em>%s</em>: %s",
+                SPAN,
+                player.Color,
                 player.Name,
                 RE.ReplaceAllString(payload.Message, ""),
             )

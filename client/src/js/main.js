@@ -13,13 +13,6 @@ var SLIDER;
 var THRESHOLD = 8;
 var WEBSOCKET;
 
-function randomColor() {
-    return "hsla(" + randomHue().toString() + ", " +
-        (Math.floor(Math.random() * 25) + 75).toString() + "%, " +
-        (Math.floor(Math.random() * 25) + 50).toString() + "%, " +
-        ((Math.random() * 0.2) + 0.1).toString() + ")";
-}
-
 function inscribe(players) {
     var html = "<tr><th>Name</th><th>Score</th></tr>";
     players.sort(function(a, b) {
@@ -28,8 +21,9 @@ function inscribe(players) {
     var n = players.length;
     for (var i = 0; i < n; i++) {
         var player = players[i];
-        html += "<tr style=\"background:" + randomColor() + ";\"><td>" +
-            player.name + "</td><td>" + player.score + "</td></tr>";
+        html += "<tr style=\"font-weight: bold; color: white; background:" +
+            player.color + ";\"><td>" + player.name + "</td><td>" +
+            player.score + "</td></tr>";
     }
     LEDGER.innerHTML = html;
 }
