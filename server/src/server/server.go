@@ -61,7 +61,7 @@ var LOOKUP = func() map[string]int {
     return lookup
 }()
 
-var RE, _ = regexp.Compile("[^0-9a-zA-Z.,? ]")
+var RE, _ = regexp.Compile("[^0-9a-zA-Z.,?! ]")
 var SPAN = `<span style=` +
     `"color: white; background-color: %s; opacity: 0.75;"` +
     `> %s </span> %s`
