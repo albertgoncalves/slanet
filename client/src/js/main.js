@@ -3,12 +3,16 @@
 /*  global assignColors, drawFrames, drawInterlude, drawTokens, HOST,
         paintSet, paintTokens, PORT, randomHue, RED, TOKEN_COLOR:true, WIDTH */
 
-var CHAT_INPUT = document.getElementById("chatInput");
+var CHAT_FORM = document.getElementById("chatForm");
 var HISTORY = document.getElementById("history");
 var INTERLUDE = document.getElementById("interlude");
 var LEDGER = document.getElementById("ledger");
 var NAME_INPUT = document.getElementById("nameInput");
-var RE = /[^0-9a-zA-Z ]/g;
+var TEXT = document.getElementById("text");
+var RE = /[^0-9a-zA-Z]/g;
+var CHAT_HTML = "<input id=\"chatInput\" type=\"text\">" +
+    "<input id=\"chatSubmit\" type=\"submit\" value=\"Enter\">";
+var CHAT_INPUT;
 var SLIDER;
 var THRESHOLD = 8;
 var WEBSOCKET;
@@ -51,17 +55,16 @@ function client(name) {
         drawFrames(function(payload) {
             WEBSOCKET.send(JSON.stringify(payload));
         });
-        document.getElementById("chatForm").style.opacity = 1;
-        document.getElementById("chatForm")
-            .addEventListener("submit", function(event) {
-                event.preventDefault();
-                var message = CHAT_INPUT.value;
-                WEBSOCKET.send(JSON.stringify({
-                    flag: false,
-                    message: message,
-                }));
-                CHAT_INPUT.value = "";
-            });
+        CHAT_FORM.style.opacity = 1;
+        CHAT_FORM.addEventListener("submit", function(event) {
+            event.preventDefault();
+            var message = CHAT_INPUT.value;
+            WEBSOCKET.send(JSON.stringify({
+                flag: false,
+                message: message,
+            }));
+            CHAT_INPUT.value = "";
+        });
     };
     WEBSOCKET.onclose = function() {};
     WEBSOCKET.onmessage = function(payload) {
@@ -79,8 +82,7 @@ function client(name) {
                 document.body.removeChild(INTERLUDE);
                 document.body.removeChild(document.getElementById("figure"));
                 document.body.removeChild(document.getElementById("base"));
-                var slider = document.getElementById("slider");
-                slider.parentNode.removeChild(slider);
+                SLIDER.parentNode.removeChild(SLIDER);
                 if (0 < frame.players.length) {
                     var winners = winner(frame.players);
                     var epilogue;
@@ -129,30 +131,29 @@ window.addEventListener("load", function() {
                     client(name);
                     NAME_INPUT.onkeypress = null;
                 }
-                SLIDER = document.createElement("div");
-                SLIDER.className = "center";
-                SLIDER.innerHTML +=
+                var slider = document.createElement("div");
+                slider.className = "center";
+                slider.innerHTML +=
                     "<input type=\"range\" min=\"0\" max=\"359\" value=\"" +
                     red + "\" id=\"slider\">";
+                INTERLUDE.parentNode.insertBefore(slider, INTERLUDE);
+                SLIDER = document.getElementById("slider");
                 SLIDER.oninput = function() {
-                    var slider = document.getElementById("slider");
-                    TOKEN_COLOR = assignColors(parseInt(slider.value), 10);
+                    TOKEN_COLOR = assignColors(parseInt(SLIDER.value), 10);
                     paintTokens();
                     paintSet();
-                    setColor(document.getElementById("slider"),
-                             slider.value.toString());
+                    setColor(SLIDER, SLIDER.value.toString());
                 };
-                INTERLUDE.parentNode.insertBefore(SLIDER, INTERLUDE);
-                setColor(document.getElementById("slider"), red);
+                CHAT_FORM.innerHTML = CHAT_HTML;
+                CHAT_INPUT = document.getElementById("chatInput");
+                setColor(SLIDER, red);
             } else {
                 NAME_INPUT.value = "";
                 if (0 < name.length) {
-                    document.getElementById("text").innerHTML =
-                        "try something else, " +
+                    TEXT.innerHTML = "try something else, " +
                         "that <strong>name</strong> is too long";
                 } else {
-                    document.getElementById("text").innerHTML =
-                        "try something else";
+                    TEXT.innerHTML = "try something else";
                 }
             }
         });
