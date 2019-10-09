@@ -43,37 +43,43 @@ type Response struct {
     Message string `json:"message"`
 }
 
-var INSERT = make(chan Client)
-var REMOVE = make(chan *websocket.Conn)
-var INTERROGATE = make(chan Client)
-var CHAT = make(chan string)
+var (
+    INSERT      = make(chan Client)
+    REMOVE      = make(chan *websocket.Conn)
+    INTERROGATE = make(chan Client)
+    CHAT        = make(chan string)
+)
 
-var CLIENTS = make(map[*websocket.Conn]*Player)
+var (
+    TOKENS []*set.Token = set.Start(true)
+    SET    []*set.Token = nil
+)
 
-var TOKENS = set.Start(true)
-var SET []*set.Token = nil
+var (
+    CLIENTS = make(map[*websocket.Conn]*Player)
+    LOOKUP  = func() map[string]int {
+        lookup := make(map[string]int)
+        for i, id := range set.IDS {
+            lookup[id] = i
+        }
+        return lookup
+    }()
+)
 
-var LOOKUP = func() map[string]int {
-    lookup := make(map[string]int)
-    for i, id := range set.IDS {
-        lookup[id] = i
+var (
+    UPGRADER = websocket.Upgrader{
+        ReadBufferSize:  1024,
+        WriteBufferSize: 1024,
+        CheckOrigin:     func(r *http.Request) bool { return true },
     }
-    return lookup
-}()
-
-var RE, _ = regexp.Compile("[^0-9a-zA-Z.,?! ]")
-var SPAN = `<span style=` +
-    `"color: white; background-color: %s; opacity: 0.75;"` +
-    `> %s </span> %s`
+    RE, _ = regexp.Compile("[^0-9a-zA-Z.,?! ]")
+    SPAN  = `<span style=` +
+        `"color: white; background-color: %s; opacity: 0.75;"` +
+        `> %s </span> %s`
+)
 
 func address(conn *websocket.Conn) uint16 {
     return uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
-}
-
-var upgrader = websocket.Upgrader{
-    ReadBufferSize:  1024,
-    WriteBufferSize: 1024,
-    CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
 func randomHsl() string {
@@ -81,7 +87,7 @@ func randomHsl() string {
 }
 
 func socket(w http.ResponseWriter, r *http.Request) {
-    conn, err := upgrader.Upgrade(w, r, nil)
+    conn, err := UPGRADER.Upgrade(w, r, nil)
     if err != nil {
         log.Println(err)
         return

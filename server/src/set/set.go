@@ -12,11 +12,46 @@ const (
     L = 2 // K - 1
 )
 
+var (
+    SHAPES = [K]string{
+        "square",
+        "circle",
+        "triangle",
+    }
+    FILLS = [K]string{
+        "solid",
+        "transparent",
+        "empty",
+    }
+    COLORS = [K]string{
+        "green",
+        "red",
+        "blue",
+    }
+    IDS = [12]string{
+        "0,0",
+        "0,1",
+        "0,2",
+        "1,0",
+        "1,1",
+        "1,2",
+        "2,0",
+        "2,1",
+        "2,2",
+        "3,0",
+        "3,1",
+        "3,2",
+    }
+    ALL_TOKENS []*Token
+)
+
 func combinations(n int) [][K]int {
     result := make([][K]int, 0)
     if 0 < n {
-        var state [K]int
-        var closure func(int, int)
+        var (
+            state   [K]int
+            closure func(int, int)
+        )
         closure = func(j, k int) {
             for i := k; i < n; i++ {
                 state[j] = i
@@ -42,39 +77,6 @@ type Token struct {
     Frequency uint8  `json:"frequency"`
 }
 
-var SHAPES = [K]string{
-    "square",
-    "circle",
-    "triangle",
-}
-
-var FILLS = [K]string{
-    "solid",
-    "transparent",
-    "empty",
-}
-
-var COLORS = [K]string{
-    "green",
-    "red",
-    "blue",
-}
-
-var IDS = [12]string{
-    "0,0",
-    "0,1",
-    "0,2",
-    "1,0",
-    "1,1",
-    "1,2",
-    "2,0",
-    "2,1",
-    "2,2",
-    "3,0",
-    "3,1",
-    "3,2",
-}
-
 func AllTokens() []*Token {
     tokens := make([]*Token, 0, 81)
     for _, shape := range SHAPES {
@@ -93,8 +95,6 @@ func AllTokens() []*Token {
     }
     return tokens
 }
-
-var ALL_TOKENS []*Token
 
 func Shuffle() {
     rand.Seed(time.Now().UnixNano())
