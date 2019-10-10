@@ -117,12 +117,7 @@ func socket(w http.ResponseWriter, r *http.Request) {
                 "",
             ))
             if message != "" {
-                CHAT <- fmt.Sprintf(
-                    SPAN,
-                    player.Color,
-                    player.Name,
-                    message,
-                )
+                CHAT <- fmt.Sprintf(SPAN, player.Color, player.Name, message)
             }
         }
     }
