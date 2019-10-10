@@ -9,6 +9,7 @@ import (
     "net/http"
     "regexp"
     "set"
+    "strings"
 )
 
 type Player struct {
@@ -111,12 +112,18 @@ func socket(w http.ResponseWriter, r *http.Request) {
             client.Tokens = payload.Tokens
             INTERROGATE <- client
         } else {
-            CHAT <- fmt.Sprintf(
-                SPAN,
-                player.Color,
-                player.Name,
-                RE.ReplaceAllString(payload.Message, ""),
-            )
+            message := strings.TrimSpace(RE.ReplaceAllString(
+                payload.Message,
+                "",
+            ))
+            if message != "" {
+                CHAT <- fmt.Sprintf(
+                    SPAN,
+                    player.Color,
+                    player.Name,
+                    message,
+                )
+            }
         }
     }
 }
