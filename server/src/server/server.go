@@ -87,6 +87,10 @@ func randomHsl() string {
     return fmt.Sprintf("hsl(%d, %d%%, %d%%)", rand.Intn(360), 50, 50)
 }
 
+func sanitize(input string) string {
+    return strings.TrimSpace(RE.ReplaceAllString(input, ""))
+}
+
 func socket(w http.ResponseWriter, r *http.Request) {
     conn, err := UPGRADER.Upgrade(w, r, nil)
     if err != nil {
@@ -99,6 +103,7 @@ func socket(w http.ResponseWriter, r *http.Request) {
         log.Println(err)
         return
     }
+    player.Name = sanitize(player.Name)
     client := Client{Conn: conn, Player: player}
     INSERT <- client
     for {
@@ -112,10 +117,7 @@ func socket(w http.ResponseWriter, r *http.Request) {
             client.Tokens = payload.Tokens
             INTERROGATE <- client
         } else {
-            message := strings.TrimSpace(RE.ReplaceAllString(
-                payload.Message,
-                "",
-            ))
+            message := sanitize(payload.Message)
             if message != "" {
                 CHAT <- fmt.Sprintf(SPAN, player.Color, player.Name, message)
             }
