@@ -3,6 +3,7 @@ package server
 import (
     "fmt"
     "github.com/gorilla/websocket"
+    "hash/fnv"
     "log"
     "math/rand"
     "net"
@@ -83,8 +84,10 @@ func address(conn *websocket.Conn) uint16 {
     return uint16(conn.RemoteAddr().(*net.TCPAddr).Port)
 }
 
-func randomHsl() string {
-    return fmt.Sprintf("hsl(%d, %d%%, %d%%)", rand.Intn(360), 50, 50)
+func hash(s string) uint32 {
+    h := fnv.New32a()
+    h.Write([]byte(s))
+    return h.Sum32()
 }
 
 func sanitize(input string) string {
@@ -98,11 +101,17 @@ func socket(w http.ResponseWriter, r *http.Request) {
         return
     }
     defer conn.Close()
-    player := &Player{Score: 0, Address: address(conn), Color: randomHsl()}
+    player := &Player{Score: 0, Address: address(conn)}
     if err := conn.ReadJSON(player); err != nil {
         log.Println(err)
         return
     }
+    player.Color = fmt.Sprintf(
+        "hsl(%d, %d%%, %d%%)",
+        uint16(hash(player.Name)%360),
+        uint8(rand.Intn(30)+40),
+        uint8(rand.Intn(35)+25),
+    )
     player.Name = sanitize(player.Name)
     client := Client{Conn: conn, Player: player}
     INSERT <- client
