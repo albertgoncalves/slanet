@@ -13,10 +13,10 @@ import (
 )
 
 type Player struct {
-    Name    string `json:"name"`
-    Score   int    `json:"score"`
-    Address uint16 `json:"address"`
-    Color   string `json:"color"`
+    Name    string
+    Score   int
+    Address uint16
+    Color   string
 }
 
 type Client struct {
@@ -26,22 +26,22 @@ type Client struct {
 }
 
 type Payload struct {
-    Flag    bool         `json:"flag"`
-    Tokens  []*set.Token `json:"tokens"`
-    Message string       `json:"message"`
+    Flag    bool
+    Tokens  []*set.Token
+    Message string
 }
 
 type Frame struct {
-    Alive   bool         `json:"alive"`
-    Players []*Player    `json:"players"`
-    Tokens  []*set.Token `json:"tokens"`
-    Set     []*set.Token `json:"set"`
+    Alive   bool
+    Players []*Player
+    Tokens  []*set.Token
+    Set     []*set.Token
 }
 
 type Response struct {
-    Flag    bool   `json:"flag"`
-    Frame   Frame  `json:"frame"`
-    Message string `json:"message"`
+    Flag    bool
+    Frame   Frame
+    Message string
 }
 
 var (

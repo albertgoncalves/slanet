@@ -20,28 +20,28 @@ var WEBSOCKET;
 function inscribe(players) {
     var html = "<tr><th>Name</th><th>Score</th></tr>";
     players.sort(function(a, b) {
-        return b.score - a.score;
+        return b.Score - a.Score;
     });
     var n = players.length;
     for (var i = 0; i < n; i++) {
         var player = players[i];
         html += "<tr style=\"font-weight: bold; color: white; background:" +
-            player.color + ";\"><td>" + player.name + "</td><td>" +
-            player.score + "</td></tr>";
+            player.Color + ";\"><td>" + player.Name + "</td><td>" +
+            player.Score + "</td></tr>";
     }
     LEDGER.innerHTML = html;
 }
 
 function winner(players) {
-    var score = players[0].score;
-    var winners = [players[0].name];
+    var score = players[0].Score;
+    var winners = [players[0].Name];
     var n = players.length;
     for (var i = 1; i < n; i++) {
-        if (score === players[i].score) {
-            winners.push(players[i].name);
-        } else if (score < players[i].score) {
-            score = players[i].score;
-            winners = [players[i].name];
+        if (score === players[i].Score) {
+            winners.push(players[i].Name);
+        } else if (score < players[i].Score) {
+            score = players[i].Score;
+            winners = [players[i].Name];
         }
     }
     return winners;
@@ -50,7 +50,7 @@ function winner(players) {
 function client(name) {
     WEBSOCKET = new WebSocket("ws://" + window.location.host + "/ws");
     WEBSOCKET.onopen = function() {
-        var payload = {name: name};
+        var payload = {Name: name};
         WEBSOCKET.send(JSON.stringify(payload));
         drawFrames(function(payload) {
             WEBSOCKET.send(JSON.stringify(payload));
@@ -60,8 +60,8 @@ function client(name) {
             event.preventDefault();
             var message = CHAT_INPUT.value;
             WEBSOCKET.send(JSON.stringify({
-                flag: false,
-                message: message,
+                Flag: false,
+                Message: message,
             }));
             CHAT_INPUT.value = "";
         });
@@ -69,13 +69,13 @@ function client(name) {
     WEBSOCKET.onclose = function() {};
     WEBSOCKET.onmessage = function(payload) {
         var response = JSON.parse(payload.data);
-        if (response.flag) {
-            var frame = response.frame;
-            if (frame.alive) {
-                inscribe(frame.players);
-                drawTokens(frame.tokens);
-                if (frame.set != null) {
-                    drawInterlude(frame.set);
+        if (response.Flag) {
+            var frame = response.Frame;
+            if (frame.Alive) {
+                inscribe(frame.Players);
+                drawTokens(frame.Tokens);
+                if (frame.Set != null) {
+                    drawInterlude(frame.Set);
                 }
             } else {
                 WEBSOCKET.close();
@@ -83,8 +83,8 @@ function client(name) {
                 document.body.removeChild(document.getElementById("figure"));
                 document.body.removeChild(document.getElementById("base"));
                 SLIDER.parentNode.removeChild(SLIDER);
-                if (0 < frame.players.length) {
-                    var winners = winner(frame.players);
+                if (0 < frame.Players.length) {
+                    var winners = winner(frame.Players);
                     var epilogue;
                     if (1 < winners.length) {
                         epilogue = "the winners are ";
@@ -99,7 +99,7 @@ function client(name) {
             }
         } else {
             var messages = HISTORY.innerHTML.split("\n");
-            messages.push(response.message);
+            messages.push(response.Message);
             if (messages[0] == "") {
                 messages.shift();
             }

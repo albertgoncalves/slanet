@@ -70,11 +70,11 @@ func combinations(n int) [][K]int {
 }
 
 type Token struct {
-    Id        string `json:"id"`
-    Shape     string `json:"shape"`
-    Color     string `json:"color"`
-    Fill      string `json:"fill"`
-    Frequency uint8  `json:"frequency"`
+    Id        string
+    Shape     string
+    Color     string
+    Fill      string
+    Frequency uint8
 }
 
 func AllTokens() []*Token {

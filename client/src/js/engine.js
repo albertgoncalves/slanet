@@ -365,7 +365,7 @@ function drawFrame(callback, id, x, y) {
         var n = SELECTION.length;
         if (0 < n) {
             for (var i = 0; i < n; i++) {
-                if (SELECTION[i].id === id) {
+                if (SELECTION[i].Id === id) {
                     target.style.stroke = "none";
                     SELECTION = remove(SELECTION, i);
                     return;
@@ -377,12 +377,12 @@ function drawFrame(callback, id, x, y) {
         n = SELECTION.length;
         if (N <= n) {
             callback({
-                flag: true,
-                tokens: SELECTION,
-                message: "",
+                Flag: true,
+                Tokens: SELECTION,
+                Message: "",
             });
             for (var j = 0; j < n; j++) {
-                target = document.getElementById(SELECTION[j].id);
+                target = document.getElementById(SELECTION[j].Id);
                 target.style.fill = "none";
                 target.style.stroke = "none";
             }
@@ -414,23 +414,23 @@ function autoDraw(frameId, tokenId, unit, x, y, thickness, shape, fill,
 }
 
 function drawToken(token) {
-    var route = FRAME_ROUTER[token.id];
-    var ids = new Array(token.frequency);
-    for (var i = 0; i < token.frequency; i++) {
-        ids[i] = token.id + "," + i.toString();
+    var route = FRAME_ROUTER[token.Id];
+    var ids = new Array(token.Frequency);
+    for (var i = 0; i < token.Frequency; i++) {
+        ids[i] = token.Id + "," + i.toString();
     }
-    var yOffset = Y_ROUTER[token.frequency - 1];
-    for (var j = 0; j < token.frequency; j++) {
+    var yOffset = Y_ROUTER[token.Frequency - 1];
+    for (var j = 0; j < token.Frequency; j++) {
         autoDraw("figureCanvas", ids[j], UNIT, route.x, route.y + yOffset[j],
-                 THICKNESS, token.shape, token.fill, token.color);
+                 THICKNESS, token.Shape, token.Fill, token.Color);
     }
-    STATE[token.id] = {
+    STATE[token.Id] = {
         token: token,
         reset: function() {
-            for (var i = 0; i < token.frequency; i++) {
+            for (var i = 0; i < token.Frequency; i++) {
                 document.getElementById(ids[i]).remove();
             }
-            delete STATE[token.id];
+            delete STATE[token.Id];
         }
     };
 }
@@ -439,7 +439,7 @@ function deselect(id) {
     var n = SELECTION.length;
     var selection = [];
     for (var i = 0; i < n; i++) {
-        if (id !== SELECTION[i].id) {
+        if (id !== SELECTION[i].Id) {
             selection.push(SELECTION[i]);
         }
     }
@@ -454,7 +454,7 @@ function drawTokens(tokens) {
     var successor = {};
     for (var i = 0; i < n; i++) {
         if (tokens[i] !== null) {
-            successor[tokens[i].id] = tokens[i];
+            successor[tokens[i].Id] = tokens[i];
         }
     }
     var id;
@@ -485,16 +485,16 @@ function drawInterlude(tokens) {
     var id;
     for (var j = 0; j < N; j++) {
         var token = tokens[j];
-        var yOffset = Y_INTER_ROUTER[token.frequency - 1];
-        for (var k = 0; k < token.frequency; k++) {
+        var yOffset = Y_INTER_ROUTER[token.Frequency - 1];
+        for (var k = 0; k < token.Frequency; k++) {
             id = "i-" + j.toString() + "," + k.toString();
             autoDraw("interludeCanvas", id, INTER_UNIT, X_INTER_ROUTER[j],
-                     yOffset[k] + HALF_INTER_UNIT, "2.25px", token.shape,
-                     token.fill, token.color);
+                     yOffset[k] + HALF_INTER_UNIT, "2.25px", token.Shape,
+                     token.Fill, token.Color);
             SET.push(id);
             SET_ATTRIBUTES[id] = {
-                fill: token.fill,
-                color: token.color,
+                fill: token.Fill,
+                color: token.Color,
             };
         }
     }
@@ -517,10 +517,10 @@ function paintTokens() {
         if (STATE.hasOwnProperty(id)) {
             var token = STATE[id].token;
             var target;
-            for (var j = 0; j < token.frequency; j++) {
+            for (var j = 0; j < token.Frequency; j++) {
                 autoRoute(
-                    document.getElementById(token.id + "," + j.toString()),
-                    token.fill, token.color);
+                    document.getElementById(token.Id + "," + j.toString()),
+                    token.Fill, token.Color);
             }
         }
     }
