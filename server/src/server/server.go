@@ -108,9 +108,9 @@ func socket(w http.ResponseWriter, r *http.Request) {
     }
     player.Color = fmt.Sprintf(
         "hsl(%d, %d%%, %d%%)",
-        uint16(hash(player.Name)%360),
-        uint8(rand.Intn(30)+40),
-        uint8(rand.Intn(35)+25),
+        hash(player.Name)%360,
+        rand.Intn(30)+40,
+        rand.Intn(35)+25,
     )
     player.Name = sanitize(player.Name)
     client := Client{Conn: conn, Player: player}
