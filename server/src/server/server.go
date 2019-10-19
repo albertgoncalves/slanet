@@ -239,7 +239,7 @@ func relay() {
 }
 
 func Run(directory, host, port string) error {
-    log.Printf("\n\tlistening on http://%s:%s/\n\n", host, port)
+    log.Printf("listening on http://%s:%s/\n", host, port)
     http.HandleFunc("/ws", socket)
     http.Handle("/", http.FileServer(http.Dir(directory)))
     go relay()
