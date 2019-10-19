@@ -38,8 +38,12 @@ svg {
     display: block;
 }
 
-#text {
+.text {
     text-align: center;
+}
+
+#postlude {
+    margin-top: 300px;
 }
 
 div.center {

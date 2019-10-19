@@ -8,7 +8,7 @@ var HISTORY = document.getElementById("history");
 var INTERLUDE = document.getElementById("interlude");
 var LEDGER = document.getElementById("ledger");
 var NAME_INPUT = document.getElementById("nameInput");
-var TEXT = document.getElementById("text");
+var PRELUDE = document.getElementById("prelude");
 var RE = /[^0-9a-zA-Z]/g;
 var CHAT_HTML = "<input id=\"chatInput\" type=\"text\">" +
     "<input id=\"chatSubmit\" type=\"submit\" value=\"Enter\">";
@@ -92,8 +92,9 @@ function client(name) {
                         epilogue = "the winner is ";
                     }
                     document.body.innerHTML +=
-                        "<div id=\"lobby\"><p id=\"text\">" + epilogue +
-                        "<strong>" + winners.join("</strong> & <strong>") +
+                        "<div id=\"lobby\"><p id=\"postlude\" " +
+                        "class=\"text\">" + epilogue + "<strong>" +
+                        winners.join("</strong> & <strong>") +
                         "</strong>, refresh page to play again</p></div>";
                 }
             }
@@ -150,10 +151,10 @@ window.addEventListener("load", function() {
             } else {
                 NAME_INPUT.value = "";
                 if (0 < name.length) {
-                    TEXT.innerHTML = "try something else, " +
+                    PRELUDE.innerHTML = "try something else, " +
                         "that <strong>name</strong> is too long";
                 } else {
-                    TEXT.innerHTML = "try something else";
+                    PRELUDE.innerHTML = "try something else";
                 }
             }
         });
