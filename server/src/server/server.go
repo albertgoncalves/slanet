@@ -53,7 +53,7 @@ var (
 )
 
 var (
-    TOKENS []*set.Token = set.Start(true)
+    TOKENS []*set.Token = set.Start()
     SET    []*set.Token = nil
 )
 
@@ -184,14 +184,14 @@ func advance(tokens []*set.Token) {
             TOKENS[index].Id = token.Id
         }
     }
-    for !set.AnySolution(TOKENS, true) {
+    for !set.AnySolution(TOKENS) {
         if len(set.ALL_TOKENS) < 1 {
             gameOver()
         } else {
             for _, token := range TOKENS {
                 set.ALL_TOKENS = append(set.ALL_TOKENS, token)
             }
-            if !set.AnySolution(set.ALL_TOKENS, true) {
+            if !set.AnySolution(set.ALL_TOKENS) {
                 gameOver()
             }
         }

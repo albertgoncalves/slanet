@@ -8,8 +8,9 @@ import (
 )
 
 const (
-    K = 3
-    L = 2 // K - 1
+    K     = 3
+    L     = 2 // K - 1
+    DEBUG = false
 )
 
 var (
@@ -153,14 +154,14 @@ func pretty(i interface{}) string {
     return string(s)
 }
 
-func AnySolution(tokens []*Token, flag bool) bool {
+func AnySolution(tokens []*Token) bool {
     for _, indices := range combinations(len(tokens)) {
         if Validate([]*Token{
             tokens[indices[0]],
             tokens[indices[1]],
             tokens[indices[2]],
         }) {
-            if flag {
+            if DEBUG {
                 fmt.Printf(
                     "len(ALL_TOKENS): %d\n%s\n%s\n%s\n\n",
                     len(ALL_TOKENS),
@@ -175,12 +176,12 @@ func AnySolution(tokens []*Token, flag bool) bool {
     return false
 }
 
-func Start(flag bool) []*Token {
+func Start() []*Token {
     ALL_TOKENS = AllTokens()
     for {
         Shuffle()
         tokens, _ := Init()
-        if !AnySolution(tokens, flag) {
+        if !AnySolution(tokens) {
             for _, token := range tokens {
                 ALL_TOKENS = append(ALL_TOKENS, token)
             }
