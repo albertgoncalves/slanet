@@ -9,7 +9,7 @@
 !set/
 !*.go
 !client/
-!prelude.png
+!banner.png
 !js/
 !*.html
 !*.css
