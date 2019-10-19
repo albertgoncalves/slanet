@@ -3,10 +3,11 @@
 export WD=$PWD
 export GOPATH="$WD/server"
 export JSPATH="$WD/client"
-PORT="8080"
+export HTML_TIDY="$JSPATH/.tidyrc"
+export PORT="8080"
+export RACE=false
 
 export HOST
-export PORT
 
 if [ "$(uname -s)" = "Darwin" ]; then
     alias ls="ls --color=auto"
@@ -76,8 +77,6 @@ if [ ! -f "$WD/.jsinit" ]; then
     touch "$WD/.jsinit"
     cd "$WD" || exit
 fi
-
-export HTML_TIDY=$JSPATH/.tidyrc
 
 jsfmts () {
     wd=$(pwd)

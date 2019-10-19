@@ -3,5 +3,11 @@
 set -e
 
 cd "$GOPATH" || exit
-go build -race -o bin/main main.go
+if $RACE; then
+    echo "$ go build -race -o bin/main main.go"
+    go build -race -o bin/main main.go
+else
+    echo "$ go build -o bin/main main.go"
+    go build -o bin/main main.go
+fi
 bin/main

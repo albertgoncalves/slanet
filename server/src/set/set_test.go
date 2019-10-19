@@ -213,6 +213,7 @@ func TestInit(t *testing.T) {
 }
 
 func TestStart(t *testing.T) {
+    DEBUG = false
     for i := 0; i < 10000; i++ {
         if !AnySolution(Start()) {
             t.Fatal("Start()")

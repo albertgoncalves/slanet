@@ -8,9 +8,8 @@ import (
 )
 
 const (
-    K     = 3
-    L     = 2 // K - 1
-    DEBUG = false
+    K = 3
+    L = 2 // K - 1
 )
 
 var (
@@ -43,6 +42,10 @@ var (
         "3,1",
         "3,2",
     }
+)
+
+var (
+    DEBUG      bool = false
     ALL_TOKENS []*Token
 )
 
