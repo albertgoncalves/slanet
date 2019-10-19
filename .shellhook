@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-export WD
-export GOPATH
-export JSPATH
+export WD=$PWD
+export GOPATH="$WD/server"
+export JSPATH="$WD/client"
+PORT="8080"
+
 export HOST
 export PORT
 
@@ -14,11 +16,6 @@ else
     alias open="xdg-open"
     HOST=$(hostname -I | cut -d " " -f 1)
 fi
-
-WD=$(pwd)
-GOPATH="$WD/server"
-JSPATH="$WD/client"
-PORT="8080"
 
 if [ ! -d "$GOPATH/bin" ]; then
     mkdir "$GOPATH/bin"
