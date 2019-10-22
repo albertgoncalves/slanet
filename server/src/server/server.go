@@ -202,7 +202,13 @@ func advance(tokens []*set.Token) {
 
 func interrogate(tokens []*set.Token) bool {
     for i := range tokens {
-        if *tokens[i] != *TOKENS[LOOKUP[tokens[i].Id]] {
+        if (tokens[i] == nil) && (TOKENS[LOOKUP[tokens[i].Id]] == nil) {
+            return true
+        } else if tokens[i] == nil {
+            return false
+        } else if TOKENS[LOOKUP[tokens[i].Id]] == nil {
+            return false
+        } else if *tokens[i] != *TOKENS[LOOKUP[tokens[i].Id]] {
             return false
         }
     }
