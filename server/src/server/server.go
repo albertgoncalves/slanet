@@ -135,6 +135,7 @@ func socket(w http.ResponseWriter, r *http.Request) {
 }
 
 func broadcastFrame(alive bool) {
+    log.Printf("broadcastFrame(%t)\n", alive)
     var players = make([]*Player, len(CLIENTS))
     i := 0
     for _, player := range CLIENTS {
@@ -157,6 +158,7 @@ func broadcastFrame(alive bool) {
 }
 
 func broadcastChat(message string) {
+    log.Printf("broadcastChat(%s)\n", message)
     for conn := range CLIENTS {
         if err := conn.WriteJSON(Response{
             Flag:    false,
@@ -168,12 +170,14 @@ func broadcastChat(message string) {
 }
 
 func gameOver() {
+    log.Println("gameOver()")
     broadcastFrame(false)
     set.ALL_TOKENS = set.AllTokens()
     SET = nil
 }
 
 func advance(tokens []*set.Token) {
+    log.Printf("advance(%+v)\n", tokens)
     for _, token := range tokens {
         index := LOOKUP[token.Id]
         replacement, err := set.Pop()
@@ -201,6 +205,7 @@ func advance(tokens []*set.Token) {
 }
 
 func interrogate(tokens []*set.Token) bool {
+    log.Printf("interrogate(%+v)\n", tokens)
     for i := range tokens {
         if (tokens[i] == nil) || (TOKENS[LOOKUP[tokens[i].Id]] == nil) ||
             (*tokens[i] != *TOKENS[LOOKUP[tokens[i].Id]]) {
@@ -214,12 +219,15 @@ func relay() {
     for {
         select {
         case client := <-INSERT:
+            log.Println("relay(<-INSERT)")
             CLIENTS[client.Conn] = client.Player
             broadcastFrame(true)
         case conn := <-REMOVE:
+            log.Println("relay(<-REMOVE)")
             delete(CLIENTS, conn)
             broadcastFrame(true)
         case client := <-INTERROGATE:
+            log.Println("relay(<-INTERROGATE)")
             if interrogate(client.Tokens) {
                 if set.Validate(client.Tokens) {
                     client.Player.Score++
@@ -234,6 +242,7 @@ func relay() {
             }
             broadcastFrame(true)
         case message := <-CHAT:
+            log.Println("relay(<-CHAT)")
             broadcastChat(message)
         }
     }
