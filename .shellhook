@@ -5,7 +5,7 @@ export GOPATH="$WD/server"
 export JSPATH="$WD/client"
 export HTML_TIDY="$JSPATH/.tidyrc"
 export PORT="8080"
-export RACE=false
+export RACE=true
 
 export HOST
 
