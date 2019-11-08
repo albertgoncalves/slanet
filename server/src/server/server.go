@@ -2,15 +2,17 @@ package server
 
 import (
     "fmt"
-    "github.com/gorilla/websocket"
     "hash/fnv"
     "log"
     "math/rand"
     "net"
     "net/http"
     "regexp"
-    "set"
     "strings"
+
+    "github.com/gorilla/websocket"
+
+    "set"
 )
 
 type Player struct {
