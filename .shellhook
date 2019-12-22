@@ -78,17 +78,17 @@ if [ ! -f "$WD/.jsinit" ]; then
     cd "$WD" || exit
 fi
 
-jsfmts () {
+jsall () {
     wd=$(pwd)
     cd "$JSPATH" || exit
     tidy -q -m "$JSPATH/src/index.html"
     sed -i 's/[ \t]\+$//' "$JSPATH/src/index.html"
     for x in "$JSPATH"/src/js/*.js; do
         echo "$x"
+        "$JSPATH/node_modules/jshint/bin/jshint" -c "$JSPATH/.jshintrc" "$x"
         clang-format -i "$x"
     done
     cd "$wd" || exit
 }
 
-export -f jsfmts
-alias jshint='$JSPATH/node_modules/jshint/bin/jshint -c $JSPATH/.jshintrc'
+export -f jsall
