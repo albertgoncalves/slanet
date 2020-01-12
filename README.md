@@ -6,8 +6,8 @@ Barebones [LAN](https://en.wikipedia.org/wiki/Local_area_network) implementation
 
 Needed things
 ---
- * [Nix](https://nixos.org/nix/)
- * Bash
+*   [Nix](https://nixos.org/nix/)
+*   Bash
 
 Server start
 ---
