@@ -236,9 +236,7 @@ func relay() {
                     SET = client.Tokens
                     advance(client.Tokens)
                 } else {
-                    if 0 < client.Player.Score {
-                        client.Player.Score--
-                    }
+                    client.Player.Score--
                 }
                 CLIENTS[client.Conn] = client.Player
             }
