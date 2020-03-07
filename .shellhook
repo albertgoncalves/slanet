@@ -73,7 +73,7 @@ export -f govets
 
 if [ ! -f "$WD/.jsinit" ]; then
     cd "$JSPATH" || exit
-    npm install --save-dev jshint
+    npm install --no-save jshint
     touch "$WD/.jsinit"
     cd "$WD" || exit
 fi
