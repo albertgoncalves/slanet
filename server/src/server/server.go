@@ -182,8 +182,7 @@ func advance(tokens []*set.Token) {
     log.Printf("advance(%+v)\n", tokens)
     for _, token := range tokens {
         index := LOOKUP[token.Id]
-        replacement, err := set.Pop()
-        if err != nil {
+        if replacement, err := set.Pop(); err != nil {
             TOKENS[index] = nil
         } else {
             TOKENS[index] = replacement

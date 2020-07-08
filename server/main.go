@@ -9,12 +9,11 @@ import (
 )
 
 func main() {
-    err := server.Run(
+    if err := server.Run(
         path.Join("..", "client", "src"),
         os.Getenv("HOST"),
         os.Getenv("PORT"),
-    )
-    if err != nil {
+    ); err != nil {
         log.Fatal(err)
     }
 }
